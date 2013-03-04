@@ -35,31 +35,25 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 /**
- * Utility to merge properties to an existing properties files.
+ * Utility to merge properties during a sakai migration.
  * Example:
  * 
- * 	> mergePropertiesHec main-properties-file new-properties-file
+ * 	> mergePropertiesHec pathNewPropertiesFile pathUpdatedValuesOldPropertiesFile pathOriginalValuesOldPropertiesFile
  * 
- * Properties in 'new' properties file are merged into 'main'.
- *   - if a property occurs in both, then the new property replaces the main (if they are different).
- *     The line containing that property in the new section is removed.
- *   - properties in one, but not in the other are unchanged.
- *   
+ * For migration from Sakai 2.8.1 to Sakai 2.9.1, the path would be:
+ * 
+ * - pathNewPropertiesFile : path to SAKAI 2.9.1 properties file
+ * - pathUpdatedValuesOldPropertiesFile : path to SAKAI 2.8.1 MODIF properties file
+ * - pathOriginalValuesOldPropertiesFile : path to SAKAI 2.8.1 properties file
+ * 
+ * 
+ * The algorithm is :
+ * 
+ * - Properties in 'new' properties file are updated with value of the 'UpdatedValuesOld' properties file
+ * - Properties that are present in 'UpdatedValuesOld' properties file but not in the other files are added at the end of the 'new' file: they are some personalizations we made during Sakai 2.8.1
+ *        
  * The utility will send output to stdout, which you can copy and save in a properties file.
- * This tool is useful if the properties files contain mainly the same properties, but
- * the order of them are very different, making a visual merge is impossible.
  *
- *                                     +-
- *                                     |
- *   Main properties                   | Main props
- *                  `-.                |
- *                     `-._            +-
- *                       .'  Merged:
- *                     .'              +-
- *                   .'                |
- *    New properties                   | New props
- *                                     |
- *                                     +-
  *
  *  NOte: Currently, the continuation lines (lines ending with \) 
  *        in 'new' are appended into a single line.*/
@@ -67,25 +61,28 @@ public class MergePropertiesUtils {
     
 public static void main(String[] args) throws Exception {
 	
-	String mainPropertiesFiles = args[0];
-	String newPropertiesFiles = args[1];
+	String pathNewPropertiesFile = args[0];   //file path for Sakai 2.9
+	String pathUpdatedValuesOldPropertiesFile = args[1];  //file path for Sakai 2.8 MODIF
+	String pathOriginalValuesOldPropertiesFile = args[2]; //file path for Sakai 2.8 
 
-	File newPropsFile = new File(newPropertiesFiles);
-	Properties newProps = load(newPropsFile);
-	int nbNewProperties = newProps.size();
+	File newPropertiesFile = new File(pathNewPropertiesFile);  //Sakai 2.9
+	File updatedValuesOldPropertiesFile = new File(pathUpdatedValuesOldPropertiesFile);  //Sakai 2.8 MODIF
+	File originalValuesOldPropertiesFilesPath = new File(pathOriginalValuesOldPropertiesFile); //Sakai 2.8 
 	
-	merge(new File(mainPropertiesFiles), newProps);
+	Properties newProps = load(newPropertiesFile);  //Sakai 2.9
+	Properties updatedProps = load(updatedValuesOldPropertiesFile);  //Sakai 2.8 MODIF
+	Properties originalProps = load(originalValuesOldPropertiesFilesPath); //Sakai 2.8 
 	
 	/**
-	 * Now we print out values not used from the newProps
+	 * Output new properties (2.9.1) with updated values from updatedProps (2.8.1 MODIF)
 	 */
-	System.out.println();
-	System.out.println("####################### Properties from 2.7.1-source-modif #######################");
+	merge(newPropertiesFile, updatedProps);
 	
-	int nbPropsRemaining = newProps.size();
-	System.out.println("### " + nbNewProperties + " properties in 2.7.1-source-modif (" + (nbNewProperties - nbPropsRemaining) + " merged (with same or different value), " + nbPropsRemaining + " remaining)\n");
+	/**
+	 * Output old properties (2.8.1 MODIF) that are not present in 2.8.1 or 2.9.1 (personalizations)
+	 */
+	printNewProps(updatedValuesOldPropertiesFile, newProps,  originalProps);	
 	
-	printNewProps(newPropsFile, newProps);
     }
 
     /**
@@ -93,13 +90,13 @@ public static void main(String[] args) throws Exception {
 
      * NOTE: The idea is that we want to write out the properties in exactly the same order, for future comparison purposes.
      * 
-     * @param mainPropFile
+     * @param newPropertiesFile
      * @param newProps
      * @return nb of properties from main props file.
      */
-    public static void merge(File mainPropFile, Properties newProps) throws Exception {
+    public static void merge(File newPropertiesFile, Properties updatedProps) throws Exception {
 	/**
-	 * 1) Read line by line of the mainProp 
+	 * 1) Read line by line of the new PropertiesFile (Sakai 2.9.1)
 	 *  For each line: extract property
 	 *  check if we have a match one in the propToMerge 
 	 *    - if no, then rewrite the same line
@@ -120,7 +117,7 @@ public static void main(String[] args) throws Exception {
 		    
 	    // Open the file that is the first
 	    // command line parameter
-	    FileInputStream fstream = new FileInputStream(mainPropFile);
+	    FileInputStream fstream = new FileInputStream(newPropertiesFile);
 	    // Get the object of DataInputStream
 	    DataInputStream in = new DataInputStream(fstream);
 	    BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -143,21 +140,21 @@ public static void main(String[] args) throws Exception {
 		String key = keyValue.key;
 		//System.out.println(key);
 		
-		String newValue = newProps.getProperty(key);
+		String newValue = updatedProps.getProperty(key);
 		String valueEscaped = unescapeJava(keyValue.value);
 		
 		if (newValue != null) {
 		    if (!newValue.equals(valueEscaped)) {
-			String newLine = composeNewPropLine(key, newValue);
-			System.out.println(escapeAccentedToUnicode(newLine));
+			String newLine = composeNewPropLine(key, StringEscapeUtils.escapeJava(newValue));
+			System.out.println(newLine);
 			nbPropsChanged++;
 		    } else {
-			System.out.println(escapeAccentedToUnicode(lineIn.getLineWithReturn()));
+			System.out.println(lineIn.getLineWithReturn());
 			nbPropsSimilar++;
 		    }
 		    
 		    // remove the key from newProps because it is used
-		    newProps.remove(key);
+		    updatedProps.remove(key);
 		} else {
 		    System.out.println(lineIn.getLineWithReturn());
 		    nbPropsNotInNew++;
@@ -167,7 +164,7 @@ public static void main(String[] args) throws Exception {
 	    // Close the input stream
 	    in.close();
 	    
-	    System.out.println("\n\n### " + nbPropsInMain + " properties in 2.8.1 (" + nbPropsChanged + " changed, " + nbPropsSimilar + " props with same value in both versions, " + nbPropsNotInNew + " not in 2.7.1)");
+	    System.out.println("\n\n### " + nbPropsInMain + " properties in 2.9.1 (" + nbPropsChanged + " changed, " + nbPropsSimilar + " props with same value in both versions, " + nbPropsNotInNew + " not in 2.8.1)");
 
 	    
 	} catch (Exception e) {// Catch exception if any
@@ -235,17 +232,21 @@ public static void main(String[] args) throws Exception {
      * @param remainingNewProps New properties that are left, i.e. remaining ones.
      */
     
-    private static void printNewProps(File newPropFile, Properties remainingNewProps) {
+    private static void printNewProps(File updatedValuesOldPropertiesFile, Properties newProps, Properties originalProps) {
 	/**
 	 * Read new props line by line.
 	 * For each line, extract the prop key
 	 *   if it is not in the remaining, then it is used. So we write the line, but commented out
 	 *   otherwise, write the line as is.
 	 */
+	
+	
+	System.out.println("#########################################################################################");
+	System.out.println("####################### Personalizations  from 2.8.1-source-modif #######################");
+	
 	try {
-	    // Open the file that is the first
-	    // command line parameter
-	    FileInputStream fstream = new FileInputStream(newPropFile);
+	    // Open the file that contains Sakai 2.8.1 modif personalizations
+	    FileInputStream fstream = new FileInputStream(updatedValuesOldPropertiesFile);
 	    // Get the object of DataInputStream
 	    DataInputStream in = new DataInputStream(fstream);
 	    BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -256,21 +257,21 @@ public static void main(String[] args) throws Exception {
 
 		KeyValue keyValue = extractKeyValue(strLine);
 		
+		//if the line does not have the pattern key = value, we skip it 
 		if (keyValue == null) {
-		    System.out.println(strLine);
 		    continue;
 		}
 		
 		String key = keyValue.key;
 		
-		boolean isUsed = (remainingNewProps.get(key) == null);
+		boolean isNotUsedInNewVersion = (newProps.get(key) == null);
+		boolean isNotUsedInOldVersion = (originalProps.get(key) == null);
 		
-		// Write out line only if property is not used
-		if (!isUsed) {
+		// Write out line only if property is a personalized property:it is not used in new version and was not used in old version
+		if (isNotUsedInNewVersion && isNotUsedInOldVersion) {
 		    System.out.println(strLine);
 		}
 	    }
-	    
 	    // Close the input stream
 	    in.close();
 	    
@@ -319,31 +320,7 @@ public static void main(String[] args) throws Exception {
 	//return new KeyValue(key.trim(), value.trim()); // NOTE: Note that value is NOT trimmed to be similar to Properties.load().
     }
     
-    /**
-     * Code from http://www.javapractices.com/topic/TopicAction.do?Id=96.
-     * Example: "Notes envoyÃ©es" -to-> "Notes envoy\u00E9es"
-     * @param aText
-     * @return
-     */
-    public static String escapeAccentedToUnicode(String aText) {
-
-	final StringBuilder result = new StringBuilder();
-	final StringCharacterIterator iterator = new StringCharacterIterator(aText);
-	char character = iterator.current();
-	
-	while (character != CharacterIterator.DONE) {
-	    String uchar = UnicodePair.toUnicode(Character.toString(character));
-	      
-	    // the char is not a special one
-	    // add it to the result as is
-	    result.append(uchar != null ? uchar : character);
-	    
-	    character = iterator.next();
-	}
-	
-	String resultStr = result.toString();
-	return resultStr;
-    }
+   
     
     /**
      * **********
@@ -358,64 +335,6 @@ public static void main(String[] args) throws Exception {
 	    this.value = value;
 	}
     }
-     
-    /**
-     * Mappe les characteres avec accent a leur equivalent Unicode.
-     */
-    
-    /**
-     * Conversion 
-     */
-    private static class UnicodePair {
-	/**
-	 * Unicode map is from http://mess.genezys.net/unicode/
-	 */
-	private static UnicodePair[] unicodemap = {
-	    new UnicodePair("Ã€", "\\u00C0"), new UnicodePair("Ã?", "\\u00C1"), new UnicodePair("Ã‚", "\\u00C2"), new UnicodePair("Ãƒ", "\\u00C3"), 
-	    new UnicodePair("Ã„", "\\u00C4"), new UnicodePair("Ã…", "\\u00C5"), new UnicodePair("Ã†", "\\u00C6"), new UnicodePair("Ã‡", "\\u00C7"), 
-	    new UnicodePair("Ãˆ", "\\u00C8"), new UnicodePair("Ã‰", "\\u00C9"), new UnicodePair("ÃŠ", "\\u00CA"), new UnicodePair("Ã‹", "\\u00CB"), 
-	    new UnicodePair("ÃŒ", "\\u00CC"), new UnicodePair("Ã?", "\\u00CD"), new UnicodePair("ÃŽ", "\\u00CE"), new UnicodePair("Ã?", "\\u00CF"),
-	    
-	    new UnicodePair("Ã?", "\\u00D0"), new UnicodePair("Ã‘", "\\u00D1"), new UnicodePair("Ã’", "\\u00D2"), new UnicodePair("Ã“", "\\u00D3"), 
-	    new UnicodePair("Ã”", "\\u00D4"), new UnicodePair("Ã•", "\\u00D5"), new UnicodePair("Ã–", "\\u00D6"), new UnicodePair("Ã—", "\\u00D7"), 
-	    new UnicodePair("Ã˜", "\\u00D8"), new UnicodePair("Ã™", "\\u00D9"), new UnicodePair("Ãš", "\\u00DA"), new UnicodePair("Ã›", "\\u00DB"), 
-	    new UnicodePair("Ãœ", "\\u00DC"), new UnicodePair("Ã?", "\\u00DD"), new UnicodePair("Ãž", "\\u00DE"), new UnicodePair("ÃŸ", "\\u00DF"),
-	    
-	    new UnicodePair("Ã ", "\\u00E0"), new UnicodePair("Ã¡", "\\u00E1"), new UnicodePair("Ã¢", "\\u00E2"), new UnicodePair("Ã£", "\\u00E3"),
-	    new UnicodePair("Ã¤", "\\u00E4"), new UnicodePair("Ã¥", "\\u00E5"), new UnicodePair("Ã¦", "\\u00E6"), new UnicodePair("Ã§", "\\u00E7"),
-	    new UnicodePair("Ã¨", "\\u00E8"), new UnicodePair("Ã©", "\\u00E9"), new UnicodePair("Ãª", "\\u00EA"), new UnicodePair("Ã«", "\\u00EB"),
-	    new UnicodePair("Ã¬", "\\u00EC"), new UnicodePair("Ã­", "\\u00ED"), new UnicodePair("Ã®", "\\u00EE"), new UnicodePair("Ã¯", "\\u00EF"),
-	    
-	    new UnicodePair("Ã°", "\\u00F0"), new UnicodePair("Ã±", "\\u00F1"), new UnicodePair("Ã²", "\\u00F2"), new UnicodePair("Ã³", "\\u00F3"),
-	    new UnicodePair("Ã´", "\\u00F4"), new UnicodePair("Ãµ", "\\u00F5"), new UnicodePair("Ã¶", "\\u00F6"), new UnicodePair("Ã·", "\\u00F7"),
-	    new UnicodePair("Ã¸", "\\u00F8"), new UnicodePair("Ã¹", "\\u00F9"), new UnicodePair("Ãº", "\\u00FA"), new UnicodePair("Ã»", "\\u00FB"),
-	    new UnicodePair("Ã¼", "\\u00FC"), new UnicodePair("Ã½", "\\u00FD"), new UnicodePair("Ã¾", "\\u00FE"), new UnicodePair("Ã¿", "\\u00FF"),
-	    
-	    new UnicodePair("Â¿", "\\u00BF"), new UnicodePair("Â©", "\\u00A9"), new UnicodePair("Â®", "\\u00AE")
-	     	    
-	};
-		
-	private String ch;
-	private String unicode;
-	private UnicodePair(String ch, String unicode) {
-	    this.ch = ch;
-	    this.unicode = unicode;
-	}
-	
-	/**
-	 * @return character converted to unicode string if there is a match. Otherwise return null.
-	 */
-	public static String toUnicode(String ch) {
-	    for (UnicodePair upair: unicodemap) {
-		if (ch == upair.ch) {
-		    return upair.unicode;
-		}
-	    }
-	    
-	    return null;
-	}
-    }
-    
 
     /**
      * Load a Properties File
