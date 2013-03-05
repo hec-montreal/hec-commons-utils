@@ -27,4 +27,4 @@ for /R %pathTool% %%a in (*.properties) do (
   ECHO %updatedValuesNewPropertiesPath%!p:%updatedValuesOldPropertiesPath%=!
   java -cp ../hec-utils-with-dependencies.jar ca.hec.commons.utils.MergePropertiesUtils %newPropertiesPath%!p:%updatedValuesOldPropertiesPath%=! %updatedValuesOldPropertiesPath%!p:%updatedValuesOldPropertiesPath%=! %originalValuesOldPropertiesPath%!p:%updatedValuesOldPropertiesPath%=! > "%updatedValuesNewPropertiesPath%!p:%updatedValuesOldPropertiesPath%=!" 2>&1
   ENDLOCAL
-) >> >> mergeProperties%MyDate%
+) >> mergeProperties%MyDate%
