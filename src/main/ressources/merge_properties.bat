@@ -1,9 +1,9 @@
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::          SET THESE PROPERTIES BEFORE LAUNCHING BATCH FILE   :::::::::::::::::::::::::::::::::::::::::::::::::
-set newPropertiesPath=D:\Sources\source_2_9_1
-set updatedValuesOldPropertiesPath=D:\Sources\source_modif
-set originalValuesOldPropertiesPath=D:\Sources\source
-set updatedValuesNewPropertiesPath=D:\Sources\source_2_9_1\modif
+set newPropertiesPath=D:\Sakai_2_9_1\source
+set originalValuesOldPropertiesPath=D:\Sakai_2_8_1\source
+set updatedValuesOldPropertiesPath=D:\Sakai_2_8_1\source_modif
+set updatedValuesNewPropertiesPath=D:\Sakai_2_9_1\source_modif
 set tool=chat
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
