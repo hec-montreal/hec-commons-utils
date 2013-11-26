@@ -25,6 +25,13 @@ package ca.hec.commons.utils;
  */
 public class FormatUtils {
 
+    /**
+     * Returns the course id with hyphens using the catalog number
+     * from PeopleSoft (or Course Management)
+     *
+     * @param  courseId the catalog number without hyphens
+     * @return      the hyphenated courseId
+     */
     public static String formatCourseId(String courseId) {
 	String cheminement;
 	String numero;
@@ -63,6 +70,29 @@ public class FormatUtils {
 	formattedCourseId = cheminement + "-" + numero + "-" + annee;
 	return formattedCourseId;
 
+    }
+
+    /**
+     * Returns the session name (ie H2013, A2012, E2014) corresponding
+     * to the PeopleSoft session enterprise id (from course management).
+     *
+     * @param  sessionId the session eid from PeopleSoft
+     * @return      the name of the session in H2014 format
+     * @see         AcademicSession
+     */
+    public static String getSessionName(String sessionId) {
+    	String sessionName = "";
+
+    	if (sessionId.charAt(3) == '1')
+    		sessionName = "H";
+    	else if (sessionId.charAt(3) == '2')
+    		sessionName = "E";
+    	else if (sessionId.charAt(3) == '3')
+    		sessionName = "A";
+
+    	sessionName += "20" + sessionId.substring(1, 3);
+
+    	return sessionName;
     }
 
 }
