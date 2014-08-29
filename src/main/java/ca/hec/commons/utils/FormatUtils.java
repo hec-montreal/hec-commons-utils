@@ -64,11 +64,11 @@ public class FormatUtils {
 	}
 
 	else {
-	    return courseId;
+	    return courseId.trim();
 	}
 
 	formattedCourseId = cheminement + "-" + numero + "-" + annee;
-	return formattedCourseId;
+	return formattedCourseId.trim();
 
     }
 
