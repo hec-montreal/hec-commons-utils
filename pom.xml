@@ -9,8 +9,8 @@
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>org.sakaiproject</groupId>
-		<artifactId>base</artifactId>
-		<relativePath>../pom.xml</relativePath>
+		<artifactId>master</artifactId>
+		<relativePath>../master/pom.xml</relativePath>
 		<version>11-SNAPSHOT</version>
 	</parent>
 	<properties>
