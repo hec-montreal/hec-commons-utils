@@ -162,7 +162,7 @@ public static void main(String[] args) throws Exception {
 	    // Close the input stream
 	    in.close();
 	    
-	    System.out.println("\n\n### " + nbPropsInMain + " properties in 2.9.1 (" + nbPropsChanged + " changed, " + nbPropsSimilar + " props with same value in both versions, " + nbPropsNotInNew + " not in 2.8.1)");
+	    System.out.println("\n\n### " + nbPropsInMain + " properties in SAKAI 11 (" + nbPropsChanged + " changed, " + nbPropsSimilar + " props with same value in both versions, " + nbPropsNotInNew + " not in 2.9.1)");
 
 	    
 	} catch (Exception e) {// Catch exception if any
@@ -240,7 +240,7 @@ public static void main(String[] args) throws Exception {
 	
 	
 	System.out.println("#########################################################################################");
-	System.out.println("####################### Personalizations  from 2.8.1-source-modif #######################");
+	System.out.println("####################### Personalizations  from 2.9.1-source-modif #######################");
 	
 	try {
 	    // Open the file that contains Sakai 2.8.1 modif personalizations
