@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,17 +60,27 @@ public class MergePropertiesUtils {
     
 public static void main(String[] args) throws Exception {
 	
+
 	String pathNewPropertiesFile = args[0];   //file path for Sakai 2.9
 	String pathUpdatedValuesOldPropertiesFile = args[1];  //file path for Sakai 2.8 MODIF
 	String pathOriginalValuesOldPropertiesFile = args[2]; //file path for Sakai 2.8 
+	String pathEnValuesPropertiesFile = args[3]; //english file in SAKAI 2.9
 
+
+
+	
 	File newPropertiesFile = new File(pathNewPropertiesFile);  //Sakai 2.9
 	File updatedValuesOldPropertiesFile = new File(pathUpdatedValuesOldPropertiesFile);  //Sakai 2.8 MODIF
-	File originalValuesOldPropertiesFilesPath = new File(pathOriginalValuesOldPropertiesFile); //Sakai 2.8 
+	File originalValuesOldPropertiesFilesPath = new File(pathOriginalValuesOldPropertiesFile); //Sakai 2.8
+	File enValuesPropertiesFile = new File(pathEnValuesPropertiesFile); //SAKAI2.9
 	
 	Properties newProps = load(newPropertiesFile);  //Sakai 2.9
 	Properties updatedProps = load(updatedValuesOldPropertiesFile);  //Sakai 2.8 MODIF
 	Properties originalProps = load(originalValuesOldPropertiesFilesPath); //Sakai 2.8 
+	Properties enProps = load(enValuesPropertiesFile); //SAKAI 2.9
+	
+	
+	importNewProps(enProps, newProps);
 	
 	/**
 	 * Output new properties (2.9.1) with updated values from updatedProps (2.8.1 MODIF)
@@ -218,8 +229,23 @@ public static void main(String[] args) throws Exception {
 	    return fullLine;
 	}
     }
+	    
+    private static void importNewProps(Properties enProperties, Properties frCAProperties){
+    	Set<Object> enKeys = enProperties.keySet();
+    	 System.out.println("#----Start importing-----");
+    	for (Object key: enKeys){
+    		if (!frCAProperties.containsKey(key)){
+    			System.out.println(key + "=---TO TRANSLATE ----" + enProperties.getProperty((String) key));
+    		}
+    		
+    	}
+    	
+    	System.out.println();
+    	System.out.println();
+    	System.out.println();
+    }
     
-
+    
     /**
      * Print the newprops.
      * Properties that are 'used' already are commented out.
