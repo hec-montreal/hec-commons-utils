@@ -33,38 +33,44 @@ public class FormatUtils {
      * @return      the hyphenated courseId
      */
     public static String formatCourseId(String courseId) {
-	String cheminement;
-	String numero;
-	String annee;
+	String cheminement = "";
+	String numero = "";
+	String annee = "";
 	String formattedCourseId;
 
-	if (courseId.length() == 6) {
-	    cheminement = courseId.substring(0, 1);
-	    numero = courseId.substring(1, 4);
-	    annee = courseId.substring(4);
+	// courseId formatting code taken from OfficialSitesJobImpl (must match)
+	
+	// if courseId does not contain a letter
+	if (!courseId.matches(".*[^0-9].*")) {
+		if (courseId.length() == 7) {
+			cheminement = courseId.substring(0, 2);
+			numero = courseId.substring(2, 5);
+			annee = courseId.substring(5);
+		} else if (courseId.length() == 6) {
+			cheminement = courseId.substring(0, 1);
+			numero = courseId.substring(1, 4);
+			annee = courseId.substring(4);
+		} else {
+			return courseId;
+		}
 	}
-
-	else if (courseId.length() == 7) {
-	    if (courseId.endsWith("A") || courseId.endsWith("E")
-		    || courseId.endsWith("R")) {
-		cheminement = courseId.substring(0, 1);
-		numero = courseId.substring(1, 4);
-		annee = courseId.substring(4);
-	    } else {
-		cheminement = courseId.substring(0, 2);
-		numero = courseId.substring(2, 5);
-		annee = courseId.substring(5);
-	    }
-	}
-
-	else if (courseId.length() == 8) {
-	    cheminement = courseId.substring(0, 2);
-	    numero = courseId.substring(2, 5);
-	    annee = courseId.substring(5);
-	}
-
+	// if courseId does contain at least one letter
 	else {
-	    return courseId.trim();
+		if (courseId.endsWith("A") || courseId.endsWith("E")
+				|| courseId.endsWith("R") || courseId.endsWith("W")) {
+			if (courseId.length() == 8) {
+				cheminement = courseId.substring(0, 2);
+				numero = courseId.substring(2, 5);
+				annee = courseId.substring(5);
+			}
+			if (courseId.length() == 7) {
+				cheminement = courseId.substring(0, 1);
+				numero = courseId.substring(1, 4);
+				annee = courseId.substring(4);
+			}
+		} else {
+			return courseId;
+		}
 	}
 
 	formattedCourseId = cheminement + "-" + numero + "-" + annee;
