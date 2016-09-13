@@ -32,51 +32,49 @@ public class FormatUtils {
      * @param  courseId the catalog number without hyphens
      * @return      the hyphenated courseId
      */
-    public static String formatCourseId(String courseId) {
-	String cheminement = "";
-	String numero = "";
-	String annee = "";
-	String formattedCourseId;
+	public static String formatCourseId(String courseId) {
+		String cheminement = null;
+		String numero = null;
+		String annee = null;
+		String formattedCourseId;
 
-	// courseId formatting code taken from OfficialSitesJobImpl (must match)
-	
-	// if courseId does not contain a letter
-	if (!courseId.matches(".*[^0-9].*")) {
-		if (courseId.length() == 7) {
-			cheminement = courseId.substring(0, 2);
-			numero = courseId.substring(2, 5);
-			annee = courseId.substring(5);
-		} else if (courseId.length() == 6) {
-			cheminement = courseId.substring(0, 1);
-			numero = courseId.substring(1, 4);
-			annee = courseId.substring(4);
-		} else {
-			return courseId;
-		}
-	}
-	// if courseId does contain at least one letter
-	else {
-		if (courseId.endsWith("A") || courseId.endsWith("E")
-				|| courseId.endsWith("R") || courseId.endsWith("W")) {
-			if (courseId.length() == 8) {
+		// courseId formatting code taken from OfficialSitesJobImpl (must match)
+
+		// if courseId does not contain a letter
+		if (!courseId.matches(".*[^0-9].*")) {
+			if (courseId.length() == 7) {
 				cheminement = courseId.substring(0, 2);
 				numero = courseId.substring(2, 5);
 				annee = courseId.substring(5);
-			}
-			if (courseId.length() == 7) {
+			} else if (courseId.length() == 6) {
 				cheminement = courseId.substring(0, 1);
 				numero = courseId.substring(1, 4);
 				annee = courseId.substring(4);
 			}
+		}
+		// if courseId does contain at least one letter
+		else {
+			if (courseId.endsWith("A") || courseId.endsWith("E")
+					|| courseId.endsWith("R") || courseId.endsWith("W")) {
+				if (courseId.length() == 8) {
+					cheminement = courseId.substring(0, 2);
+					numero = courseId.substring(2, 5);
+					annee = courseId.substring(5);
+				} else if (courseId.length() == 7) {
+					cheminement = courseId.substring(0, 1);
+					numero = courseId.substring(1, 4);
+					annee = courseId.substring(4);
+				}
+			}
+		}
+
+		if (cheminement != null && numero != null && annee != null) {
+			formattedCourseId = cheminement + "-" + numero + "-" + annee;
+			return formattedCourseId.trim();
 		} else {
 			return courseId;
 		}
 	}
-
-	formattedCourseId = cheminement + "-" + numero + "-" + annee;
-	return formattedCourseId.trim();
-
-    }
 
     /**
      * Returns the session name (ie H2013, A2012, E2014) corresponding
