@@ -4,5 +4,7 @@
 <beans>
 	<bean id="ca.hec.tenjin.api.ImportService"
 		class="ca.hec.commons.providers.ImportServiceImpl">
+		
+		<property name="osylSiteService" ref="org.sakaiquebec.opensyllabus.common.api.OsylSiteService" />
 	</bean>	
 </beans>
