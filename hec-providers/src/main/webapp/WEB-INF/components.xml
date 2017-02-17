@@ -6,5 +6,6 @@
 		class="ca.hec.commons.providers.ImportServiceImpl">
 		
 		<property name="osylSiteService" ref="org.sakaiquebec.opensyllabus.common.api.OsylSiteService" />
+		<property name="templateService" ref="ca.hec.tenjin.api.TemplateService" />
 	</bean>	
 </beans>
