@@ -38,6 +38,7 @@ import org.sakaiquebec.opensyllabus.shared.model.COStructureElement;
 import org.sakaiquebec.opensyllabus.shared.model.COUnit;
 import org.sakaiquebec.opensyllabus.shared.model.COUnitStructure;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.exception.PermissionException;
 
 public class ImportServiceImpl implements ImportService {
 	private static Log log = LogFactory.getLog(ImportServiceImpl.class);
@@ -48,7 +49,7 @@ public class ImportServiceImpl implements ImportService {
 	@Setter
 	TemplateService templateService;
 	
-	public synchronized Syllabus importSyllabusFromSite(String siteId) {
+	public synchronized Syllabus importSyllabusFromSite(String siteId) throws PermissionException {
 		
 		//TODO : i18n
 		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, "fr_CA");
@@ -56,6 +57,8 @@ public class ImportServiceImpl implements ImportService {
 		COModeledServer osylCO = null;
 		try {
 			osylCO = osylSiteService.getCourseOutlineForTenjinImport(siteId);
+		} catch (PermissionException pe) {
+			throw pe;
 		} catch (Exception e) {
 			log.error("Could not retrieve specified OpenSyllabus course outline");
 			return null;
