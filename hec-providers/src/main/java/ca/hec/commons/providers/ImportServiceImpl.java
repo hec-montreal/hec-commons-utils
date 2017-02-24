@@ -2,10 +2,13 @@ package ca.hec.commons.providers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +26,7 @@ import ca.hec.tenjin.api.model.syllabus.SyllabusDocumentElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusHyperlinkElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusSakaiToolElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
+import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import lombok.Setter;
 import ca.hec.tenjin.api.ImportService;
 import ca.hec.tenjin.api.TemplateService;
@@ -49,7 +53,90 @@ public class ImportServiceImpl implements ImportService {
 	@Setter
 	TemplateService templateService;
 	
+	// Maps for rubric keyword => title 
+    private static final Map<String, String> rubricMap_fr;
+    private static final Map<String, String> rubricMap_en;
+    private static final Map<String, String> rubricMap_es;
+    static {
+        Map<String, String> aMap = new HashMap<String, String>();
+        aMap.put("description", "Description");
+        aMap.put("objectives", "Objectifs");
+        aMap.put("learningstrat", "Approche pédagogique");
+        aMap.put("coordinators", "Coordonnateur");
+        aMap.put("lecturers", "Enseignant(s)");
+        aMap.put("teachingassistants", "Stagiaire(s) d'enseignement");
+        aMap.put("speakers", "Conférencier(s)");
+        aMap.put("secretaries", "Secrétaire(s)");
+        aMap.put("bibliographicres", "Ressources bibliographiques");
+        aMap.put("misresources", "Ressources générales");
+        aMap.put("complbibres", "Ressources bibliographiques complémentaires");
+        aMap.put("case", "Cas");
+        aMap.put("tools", "Outils");
+        aMap.put("pastexams", "Anciens examens");
+        aMap.put("evalcriteria", "Critères d'évaluation");
+        aMap.put("evalpreparation", "Préparation à l'évaluation");
+        aMap.put("evalsubproc", "Modalités de remise et pénalités");
+        aMap.put("actResBefore", "Activités/Ressources avant la séance");
+        aMap.put("actResDuring", "Activités/Ressources pendant la séance");
+        aMap.put("actResAfter", "Activités/Ressources après la séance");
+        rubricMap_fr = Collections.unmodifiableMap(aMap);
+        
+        Map<String, String> bMap = new HashMap<String, String>();
+        bMap.put("description", "Description");
+        bMap.put("objectives", "Objectives");
+        bMap.put("learningstrat", "Learning Strategy");
+        bMap.put("coordinators", "Coordinator");
+        bMap.put("lecturers", "Lecturer(s)");
+        bMap.put("teachingassistants", "Teaching Assistant(s)");
+        bMap.put("speakers", "Speaker(s)");
+        bMap.put("secretaries", "Secretary(ies)");
+        bMap.put("bibliographicres", "Bibliographic Resources");
+        bMap.put("misresources", "Miscellaneous Resources");
+        bMap.put("complbibres", "Complementary Bibliographic Resources");
+        bMap.put("case", "Case");
+        bMap.put("tools", "Tools");
+        bMap.put("pastexams", "Past Exams");
+        bMap.put("evalcriteria", "Evaluation Criteria");
+        bMap.put("evalpreparation", "Preperation to Evaluation");
+        bMap.put("evalsubproc", "Submission Procedures and Penalties");
+        bMap.put("actResBefore", "Activities/Resources before session");
+        bMap.put("actResDuring", "Activities/Resources during session");
+        bMap.put("actResAfter", "Activities/Resources after session");
+        rubricMap_en = Collections.unmodifiableMap(bMap);
+
+        Map<String, String> cMap = new HashMap<String, String>();
+        cMap.put("description", "Descripciòn");
+        cMap.put("objectives", "Objetivos");
+        cMap.put("learningstrat", "Estrategia de aprendizaje");
+        cMap.put("coordinators", "Coordinador");
+        cMap.put("lecturers", "Profesor(es)");
+        cMap.put("teachingassistants", "Profesor(es) ayudant(es)");
+        cMap.put("speakers", "Conferencista(s)");
+        cMap.put("secretaries", "Secretaria(s)");
+        cMap.put("bibliographicres", "Referencias bibliográficas");
+        cMap.put("misresources", "Recursos generales");
+        cMap.put("complbibres", "Recursos bibliográficos complementarios");
+        cMap.put("case", "Caso");
+        cMap.put("tools", "Herramientas");
+        cMap.put("pastexams", "Exámenes anteriores");
+        cMap.put("evalcriteria", "Criterios de evaluaciòn");
+        cMap.put("evalpreparation", "Preparaciòn para la evaluaciòn");
+        cMap.put("evalsubproc", "Procedimientos de presentaciòn y penalidades");
+        cMap.put("actResBefore", "Actividades y/o Recursos antes de la sesiòn");
+        cMap.put("actResDuring", "Actividades y/o Recursos durante de la sesiòn");
+        cMap.put("actResAfter", "Actividades y/o Recursos después de la sesiòn");
+        rubricMap_es = Collections.unmodifiableMap(cMap);
+    }	
+	
 	public synchronized Syllabus importSyllabusFromSite(String siteId) throws PermissionException {
+		
+		// Should lang come from the course outline?
+		String lang = "fr_CA";
+		if (siteId.charAt(siteId.indexOf('.')-1) == 'A') {
+			lang = "en_US";
+		} else if (siteId.charAt(siteId.indexOf('.')-1) == 'E') {
+			lang = "es";
+		}
 		
 		//TODO : i18n
 		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, "fr_CA");
@@ -83,36 +170,99 @@ public class ImportServiceImpl implements ImportService {
 			}
 
 			if (copyTo != null)
-				recursiveCopyToTenjinSyllabus(copyTo, e);			
+				recursiveCopyToTenjinSyllabus(copyTo, e, lang);			
 		}
 	
 		// TODO: get Syllabus data
-		syllabus.setTitle(osylCO.getModeledContent().getLabel());
+		syllabus.setTitle("Commun");
+		syllabus.setCourseTitle(siteId);
+		syllabus.setSiteId(siteId);
+		syllabus.setTemplateId(1L);
+		syllabus.setLocale("fr_CA"); //TODO
+		syllabus.setCommon(true);		
+		//syllabus.setCreatedBy();
+		//syllabus.setCreatedByName();
+		syllabus.setCreatedDate(new Date());
 		
 		return syllabus;
 		
 	}
 	
-	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi) {
-		
+	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang) {
 		SyllabusCompositeElement compositeElement = null;
 		
 		if (comi instanceof COContentResourceProxy) {
 			COContentResourceProxy cocrp = (COContentResourceProxy) comi;
 			
-			String rubric = null;
+			String rubricKey = null;
 			Iterator<String> i = cocrp.getRubrics().keySet().iterator(); 
 			while (i.hasNext()) {
 				String key = (String) i.next();
 				
 				// for some reason the rubric keyword is it's type
-				rubric = cocrp.getRubrics().get(key).getType();
+				rubricKey = cocrp.getRubrics().get(key).getType();
 				
-				log.error("Rubric: " + rubric);
+				log.error("Rubric: " + rubricKey);
+			}
+			
+			if (rubricKey.equals("undefined")) {
+				// don't add elements in undefined rubric
+				return;
+			}
+			
+			// get the title for the rubric for the correct language
+			String rubricTitle = null;
+			if (lang.equals("fr_CA")) {
+				rubricTitle = rubricMap_fr.getOrDefault(rubricKey, rubricKey);
+			} else if (lang.equals("en_US")) {
+				rubricTitle = rubricMap_en.getOrDefault(rubricKey, rubricKey);				
+			} else if (lang.equals("es")) {
+				rubricTitle = rubricMap_es.getOrDefault(rubricKey, rubricKey);				
 			}
 			
 			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp);
-			elem.getElements().add(tenjinElement);
+			
+			// find the desired rubric
+			boolean added = false;
+			for (AbstractSyllabusElement r : elem.getElements()) {
+				if (r.isComposite() && r.getTitle().equals(rubricTitle)) {
+					((SyllabusCompositeElement)r).getElements().add(tenjinElement);
+					added = true;
+				}
+			}
+			
+			// If the rubric doesn't exist, create it
+			if (!added) {
+				// if we didn't find the rubric, create one
+				SyllabusRubricElement newRubric = new SyllabusRubricElement();
+				newRubric.setTitle(rubricTitle);
+				
+				//TODO
+				newRubric.setElements(new ArrayList<AbstractSyllabusElement>());
+				newRubric.getElements().add(tenjinElement);
+				
+				newRubric.setAttributes(new HashMap<String, String>());
+
+				// we are generating a common syllabus
+				newRubric.setCommon(true);
+				
+				// elements are not public by default
+				newRubric.setPublicElement(false);
+				
+				// composite elements cannot be hidden or important
+				newRubric.setHidden(false);
+				newRubric.setImportant(false);
+				
+				newRubric.setCreatedDate(new Date());
+				// TODO created by current user.
+				//ret.setCreatedBy()
+				
+				//TODO temporary!
+				newRubric.setTemplateStructureId(1L);
+				
+				elem.getElements().add(newRubric);
+			}
+			
 
 		} else if (comi instanceof COUnit) {
 			COUnit cou = (COUnit) comi;
@@ -129,9 +279,9 @@ public class ImportServiceImpl implements ImportService {
 			for (Object child : abstractElement.getChildrens()) {
 				
 				if (compositeElement != null) {
-					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child);
+					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang);
 				} else {
-					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child);
+					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang);
 				}
 			}
 		}
@@ -182,6 +332,9 @@ public class ImportServiceImpl implements ImportService {
 			ret.setCreatedDate(new Date());
 			// TODO created by current user.
 			//ret.setCreatedBy()
+			
+			//TODO temporary!
+			ret.setTemplateStructureId(1L);
 		}
 		
 		log.error(ret);
@@ -308,7 +461,10 @@ public class ImportServiceImpl implements ImportService {
 		
 		ret.setCreatedDate(new Date());
 		//TODO : set currentuser
-		//ret.setCreatedBy(createdBy); 
+		//ret.setCreatedBy(createdBy);
+
+		// TODO temp
+		ret.setTemplateStructureId(1L);
 		
 		log.error(ret);
 		return ret;
