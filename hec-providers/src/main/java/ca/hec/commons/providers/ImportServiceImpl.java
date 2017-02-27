@@ -43,6 +43,7 @@ import org.sakaiquebec.opensyllabus.shared.model.COUnit;
 import org.sakaiquebec.opensyllabus.shared.model.COUnitStructure;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.IdUnusedException;
 
 public class ImportServiceImpl implements ImportService {
 	private static Log log = LogFactory.getLog(ImportServiceImpl.class);
@@ -151,7 +152,17 @@ public class ImportServiceImpl implements ImportService {
 			return null;
 		}
 		
-		if (osylCO == null) 
+		HashMap<String, HashMap<String, Object>> templateRules = null;
+		try {
+			// hardcoded template, need the rules to set template structure ids
+			templateRules = templateService.getTemplateRules(1L);
+		} catch (IdUnusedException e) {
+			// should propogate?
+			log.error("Could not retrieve template");
+			return null;
+		}
+		
+		if (osylCO == null || templateRules == null) 
 			return null;
 		
 		for (COModelInterface e : osylCO.getModeledContent().getChildrens()) {
@@ -170,7 +181,7 @@ public class ImportServiceImpl implements ImportService {
 			}
 
 			if (copyTo != null)
-				recursiveCopyToTenjinSyllabus(copyTo, e, lang);			
+				recursiveCopyToTenjinSyllabus(copyTo, e, lang, templateRules);			
 		}
 	
 		// TODO: get Syllabus data
@@ -188,7 +199,7 @@ public class ImportServiceImpl implements ImportService {
 		
 	}
 	
-	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang) {
+	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang, HashMap<String, HashMap<String, Object>> templateRules) {
 		SyllabusCompositeElement compositeElement = null;
 		
 		if (comi instanceof COContentResourceProxy) {
@@ -226,7 +237,10 @@ public class ImportServiceImpl implements ImportService {
 			boolean added = false;
 			for (AbstractSyllabusElement r : elem.getElements()) {
 				if (r.isComposite() && r.getTitle().equals(rubricTitle)) {
-					((SyllabusCompositeElement)r).getElements().add(tenjinElement);
+					
+					SyllabusCompositeElement parentRubric = (SyllabusCompositeElement)r;
+					tenjinElement.setTemplateStructureId(getTemplateStructureIdForElement(parentRubric, tenjinElement, templateRules));
+					parentRubric.getElements().add(tenjinElement);
 					added = true;
 				}
 			}
@@ -237,10 +251,7 @@ public class ImportServiceImpl implements ImportService {
 				SyllabusRubricElement newRubric = new SyllabusRubricElement();
 				newRubric.setTitle(rubricTitle);
 				
-				//TODO
 				newRubric.setElements(new ArrayList<AbstractSyllabusElement>());
-				newRubric.getElements().add(tenjinElement);
-				
 				newRubric.setAttributes(new HashMap<String, String>());
 
 				// we are generating a common syllabus
@@ -257,9 +268,11 @@ public class ImportServiceImpl implements ImportService {
 				// TODO created by current user.
 				//ret.setCreatedBy()
 				
-				//TODO temporary!
-				newRubric.setTemplateStructureId(1L);
-				
+				// Get template structure ids for new rubric and element
+				newRubric.setTemplateStructureId(getTemplateStructureIdForElement(elem, newRubric, templateRules));
+				tenjinElement.setTemplateStructureId(getTemplateStructureIdForElement(newRubric, tenjinElement, templateRules));
+
+				newRubric.getElements().add(tenjinElement);
 				elem.getElements().add(newRubric);
 			}
 			
@@ -269,6 +282,7 @@ public class ImportServiceImpl implements ImportService {
 			compositeElement = convertToTenjinCompositeElement(cou);
 
 			if (compositeElement != null) {
+				compositeElement.setTemplateStructureId(getTemplateStructureIdForElement(elem, compositeElement, templateRules));
 				elem.getElements().add(compositeElement);
 			}
 		}
@@ -279,12 +293,38 @@ public class ImportServiceImpl implements ImportService {
 			for (Object child : abstractElement.getChildrens()) {
 				
 				if (compositeElement != null) {
-					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang);
+					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang, templateRules);
 				} else {
-					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang);
+					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang, templateRules);
 				}
 			}
 		}
+	}
+	
+	private Long getTemplateStructureIdForElement(SyllabusCompositeElement parentElement, AbstractSyllabusElement newElement, HashMap<String, HashMap<String, Object>> templateRules) {
+		HashMap<String, Object> rulesForParent = null;
+		
+		if (parentElement.getTemplateStructureId() != null && 
+				templateRules.containsKey(parentElement.getTemplateStructureId().toString()))
+			rulesForParent = templateRules.get(parentElement.getTemplateStructureId().toString());
+			
+		if (rulesForParent != null && rulesForParent.containsKey("elements")) {									
+			List<Object> elementsForParent = (List<Object>)rulesForParent.get("elements");
+			for (Object o : elementsForParent) {
+				HashMap<String, Object> map = (HashMap<String, Object>)o;
+				String ruleType = (String)map.get("type");
+				String ruleLabel = (String)map.get("label");
+				
+				// if the new element is a rubric, find template rule with the same title
+				// or just match types
+				if ((ruleType.equals("rubric") && ruleLabel.equals(newElement.getTitle())) || 
+						!ruleType.equals("rubric") && ruleType.equals(newElement.getType())) {
+
+					return (Long)map.get("id");
+				}
+			}
+		}
+		return null;
 	}
 
 	private SyllabusCompositeElement convertToTenjinCompositeElement(COUnit element) {
@@ -332,9 +372,6 @@ public class ImportServiceImpl implements ImportService {
 			ret.setCreatedDate(new Date());
 			// TODO created by current user.
 			//ret.setCreatedBy()
-			
-			//TODO temporary!
-			ret.setTemplateStructureId(1L);
 		}
 		
 		log.error(ret);
@@ -462,9 +499,6 @@ public class ImportServiceImpl implements ImportService {
 		ret.setCreatedDate(new Date());
 		//TODO : set currentuser
 		//ret.setCreatedBy(createdBy);
-
-		// TODO temp
-		ret.setTemplateStructureId(1L);
 		
 		log.error(ret);
 		return ret;
