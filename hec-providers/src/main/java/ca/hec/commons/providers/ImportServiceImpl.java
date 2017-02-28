@@ -70,7 +70,7 @@ public class ImportServiceImpl implements ImportService {
         aMap.put("secretaries", "Secrétaire(s)");
         aMap.put("bibliographicres", "Ressources bibliographiques");
         aMap.put("misresources", "Ressources générales");
-        aMap.put("complbibres", "Ressources bibliographiques complémentaires");
+        aMap.put("complbibres", "Ressources complémentaires");
         aMap.put("case", "Cas");
         aMap.put("tools", "Outils");
         aMap.put("pastexams", "Anciens examens");
