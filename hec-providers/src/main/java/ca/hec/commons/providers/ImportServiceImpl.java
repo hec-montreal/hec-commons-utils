@@ -5,9 +5,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Collections;
 
 import org.apache.commons.logging.Log;
@@ -30,18 +28,15 @@ import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import lombok.Setter;
 import ca.hec.tenjin.api.ImportService;
 import ca.hec.tenjin.api.TemplateService;
+import ca.hec.tenjin.api.exception.DeniedAccessException;
+
 import org.sakaiquebec.opensyllabus.common.api.OsylSiteService;
 import org.sakaiquebec.opensyllabus.common.model.COModeledServer;
-import org.sakaiquebec.opensyllabus.shared.model.COContentResource;
 import org.sakaiquebec.opensyllabus.shared.model.COContentResourceProxy;
-import org.sakaiquebec.opensyllabus.shared.model.COContentRubric;
 import org.sakaiquebec.opensyllabus.shared.model.COElementAbstract;
 import org.sakaiquebec.opensyllabus.shared.model.COModelInterface;
 import org.sakaiquebec.opensyllabus.shared.model.COPropertiesType;
-import org.sakaiquebec.opensyllabus.shared.model.COStructureElement;
 import org.sakaiquebec.opensyllabus.shared.model.COUnit;
-import org.sakaiquebec.opensyllabus.shared.model.COUnitStructure;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.IdUnusedException;
 
@@ -129,7 +124,7 @@ public class ImportServiceImpl implements ImportService {
         rubricMap_es = Collections.unmodifiableMap(cMap);
     }	
 	
-	public synchronized Syllabus importSyllabusFromSite(String siteId) throws PermissionException {
+	public synchronized Syllabus importSyllabusFromSite(String siteId) throws DeniedAccessException {
 		
 		// Should lang come from the course outline?
 		String lang = "fr_CA";
@@ -146,7 +141,7 @@ public class ImportServiceImpl implements ImportService {
 		try {
 			osylCO = osylSiteService.getCourseOutlineForTenjinImport(siteId);
 		} catch (PermissionException pe) {
-			throw pe;
+			throw new DeniedAccessException();
 		} catch (Exception e) {
 			log.error("Could not retrieve specified OpenSyllabus course outline");
 			return null;
