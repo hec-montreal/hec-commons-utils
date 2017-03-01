@@ -88,7 +88,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         bMap.put("secretaries", "Secretary(ies)");
         bMap.put("bibliographicres", "Bibliographic Resources");
         bMap.put("misresources", "Miscellaneous Resources");
-        bMap.put("complbibres", "Complementary Bibliographic Resources");
+        bMap.put("complbibres", "Complementary Bibliographical Resources");
         bMap.put("case", "Case");
         bMap.put("tools", "Tools");
         bMap.put("pastexams", "Past Exams");
@@ -126,17 +126,6 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 	
 	public Syllabus importSyllabusFromSite(String siteId) throws DeniedAccessException {
 		
-		// Should lang come from the course outline?
-		String lang = "fr_CA";
-		if (siteId.charAt(siteId.indexOf('.')-1) == 'A') {
-			lang = "en_US";
-		} else if (siteId.charAt(siteId.indexOf('.')-1) == 'E') {
-			lang = "es";
-		}
-		
-		//TODO : i18n
-		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, "fr_CA");
-		
 		COModeledServer osylCO = null;
 		try {
 			osylCO = osylSiteService.getCourseOutlineForTenjinImport(siteId);
@@ -147,18 +136,31 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			return null;
 		}
 		
+		if (osylCO == null) 
+			return null;
+
+		String osylLang = osylCO.getModeledContent().getProperty("language");
+		String lang = "fr_CA";
+		if (osylLang.equals("ENG")) {
+			lang = "en_US";
+		} else if (osylCO.equals("ES")) {
+			lang = "es";
+		}
+		
 		HashMap<String, HashMap<String, Object>> templateRules = null;
 		try {
 			// hardcoded template, need the rules to set template structure ids
-			templateRules = templateService.getTemplateRules(1L);
+			templateRules = templateService.getTemplateRules(1L, lang);
 		} catch (IdUnusedException e) {
 			// should propogate?
 			log.error("Could not retrieve template");
 			return null;
 		}
-		
-		if (osylCO == null || templateRules == null) 
+
+		if (templateRules == null) // TODO:  should this be an exception?
 			return null;
+		
+		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, lang);
 		
 		for (COModelInterface e : osylCO.getModeledContent().getChildrens()) {
 			SyllabusCompositeElement copyTo = null;
@@ -184,7 +186,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		syllabus.setCourseTitle(siteId);
 		syllabus.setSiteId(siteId);
 		syllabus.setTemplateId(1L);
-		syllabus.setLocale("fr_CA"); //TODO
+		syllabus.setLocale(lang);
 		syllabus.setCommon(true);		
 		//syllabus.setCreatedBy();
 		//syllabus.setCreatedByName();
@@ -319,6 +321,13 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				}
 			}
 		}
+		
+		String error = "templateStructureId is null for child " + newElement.getType();
+		if (newElement.getType().equals("rubric"))
+			error += ":"+newElement.getTitle();
+		error += " of " + parentElement.getTitle();
+		log.error(error);
+
 		return null;
 	}
 
@@ -328,6 +337,11 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		if (element.getType().equals("AssessmentUnit")) {
 			// TODO : exam/eval attributes
 			HashMap<String, String> attributes = new HashMap<String, String>();
+			
+			if (element.getProperty("assessmentType") == null) {
+				// a new evaluation in OpenSyllabus can have no type, until one is selected
+				return null;
+			}
 			
 			if (element.getProperty("assessmentType").equals("intra_exam") || 
 					element.getProperty("assessmentType").equals("final_exam")) {
