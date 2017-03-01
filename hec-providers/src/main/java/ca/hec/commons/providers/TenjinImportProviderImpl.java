@@ -26,7 +26,7 @@ import ca.hec.tenjin.api.model.syllabus.SyllabusSakaiToolElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import lombok.Setter;
-import ca.hec.tenjin.api.ImportService;
+import ca.hec.tenjin.api.provider.TenjinImportProvider;
 import ca.hec.tenjin.api.TemplateService;
 import ca.hec.tenjin.api.exception.DeniedAccessException;
 
@@ -40,8 +40,8 @@ import org.sakaiquebec.opensyllabus.shared.model.COUnit;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.IdUnusedException;
 
-public class ImportServiceImpl implements ImportService {
-	private static Log log = LogFactory.getLog(ImportServiceImpl.class);
+public class TenjinImportProviderImpl implements TenjinImportProvider {
+	private static Log log = LogFactory.getLog(TenjinImportProviderImpl.class);
 	
 	@Setter
 	OsylSiteService osylSiteService;
