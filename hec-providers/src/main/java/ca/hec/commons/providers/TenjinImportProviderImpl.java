@@ -208,7 +208,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				// for some reason the rubric keyword is it's type
 				rubricKey = cocrp.getRubrics().get(key).getType();
 				
-				log.error("Rubric: " + rubricKey);
+				log.debug("Rubric: " + rubricKey);
 			}
 			
 			if (rubricKey.equals("undefined")) {
@@ -369,7 +369,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			//ret.setCreatedBy()
 		}
 		
-		log.error(ret);
+		log.debug(ret);
 		return ret;
 	}
 	
@@ -495,7 +495,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		//TODO : set currentuser
 		//ret.setCreatedBy(createdBy);
 		
-		log.error(ret);
+		log.debug(ret);
 		return ret;
 	}
 	
