@@ -124,7 +124,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         rubricMap_es = Collections.unmodifiableMap(cMap);
     }	
 	
-	public synchronized Syllabus importSyllabusFromSite(String siteId) throws DeniedAccessException {
+	public Syllabus importSyllabusFromSite(String siteId) throws DeniedAccessException {
 		
 		// Should lang come from the course outline?
 		String lang = "fr_CA";
