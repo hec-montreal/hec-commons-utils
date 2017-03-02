@@ -181,13 +181,18 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				recursiveCopyToTenjinSyllabus(copyTo, e, lang, templateRules);			
 		}
 	
-		// TODO: get Syllabus data
-		syllabus.setTitle("Commun");
+		// set title
+		if (lang.equals("fr_CA"))
+			syllabus.setTitle("Commun");
+		else if (lang.equals("en_US"))
+			syllabus.setTitle("Common");
+		else if (lang.equals("es"))
+			syllabus.setTitle("Común");
+		
 		syllabus.setCourseTitle(siteId);
 		syllabus.setSiteId(siteId);
-		syllabus.setTemplateId(1L);
-		syllabus.setLocale(lang);
-		syllabus.setCommon(true);		
+		syllabus.setCommon(true);
+		// TODO
 		//syllabus.setCreatedBy();
 		//syllabus.setCreatedByName();
 		syllabus.setCreatedDate(new Date());
@@ -348,6 +353,19 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				
 				ret = new SyllabusExamElement();
 				attributes.put("examWeight", element.getProperty("weight"));
+				if (element.getProperties().containsKey("location")) {
+					attributes.put("examAtHome", element.getProperty("location").contains("home")?"true":"false");
+					attributes.put("examInClass", element.getProperty("location").contains("inClass")?"true":"false");
+				}
+				if (element.getProperties().containsKey("modality")) {
+					attributes.put("examOral", element.getProperty("modality").contains("oral")?"true":"false");
+					attributes.put("examWritten", element.getProperty("modality").contains("written")?"true":"false");
+				}
+				if (element.getProperties().containsKey("submition_type")) {
+					attributes.put("examPaper", element.getProperty("submition_type").contains("paper")?"true":"false");
+					attributes.put("examElectronic", element.getProperty("submition_type").contains("elect")?"true":"false");
+				}
+				attributes.put("examMode", element.getProperty("mode"));
 				
 			} else if (element.getProperty("assessmentType").equals("quiz") ||
 					element.getProperty("assessmentType").equals("session_work") ||
@@ -355,6 +373,21 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 					element.getProperty("assessmentType").equals("other")) {
 				
 				ret = new SyllabusEvaluationElement();
+				attributes.put("evaluationWeight", element.getProperty("weight"));
+				if (element.getProperties().containsKey("location")) {
+					attributes.put("evaluationAtHome", element.getProperty("location").contains("home")?"true":"false");
+					attributes.put("evaluationInClass", element.getProperty("location").contains("inClass")?"true":"false");
+				}
+				if (element.getProperties().containsKey("modality")) {
+					attributes.put("evaluationOral", element.getProperty("modality").contains("oral")?"true":"false");
+					attributes.put("evaluationWritten", element.getProperty("modality").contains("written")?"true":"false");
+				}
+				if (element.getProperties().containsKey("submition_type")) {
+					attributes.put("evaluationPaper", element.getProperty("submition_type").contains("paper")?"true":"false");
+					attributes.put("evaluationElectronic", element.getProperty("submition_type").contains("elect")?"true":"false");
+				}
+				attributes.put("evaluationMode", element.getProperty("mode"));
+				attributes.put("evaluationDate", element.getProperty("date-start"));
 			}
 			ret.setAttributes(attributes);
 			
