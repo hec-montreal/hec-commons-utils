@@ -101,7 +101,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         rubricMap_en = Collections.unmodifiableMap(bMap);
 
         Map<String, String> cMap = new HashMap<String, String>();
-        cMap.put("description", "Descripciòn");
+        cMap.put("description", "Descripción");
         cMap.put("objectives", "Objetivos");
         cMap.put("learningstrat", "Estrategia de aprendizaje");
         cMap.put("coordinators", "Coordinador");
@@ -115,12 +115,12 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         cMap.put("case", "Caso");
         cMap.put("tools", "Herramientas");
         cMap.put("pastexams", "Exámenes anteriores");
-        cMap.put("evalcriteria", "Criterios de evaluaciòn");
-        cMap.put("evalpreparation", "Preparaciòn para la evaluaciòn");
-        cMap.put("evalsubproc", "Procedimientos de presentaciòn y penalidades");
-        cMap.put("actResBefore", "Actividades y/o Recursos antes de la sesiòn");
-        cMap.put("actResDuring", "Actividades y/o Recursos durante de la sesiòn");
-        cMap.put("actResAfter", "Actividades y/o Recursos después de la sesiòn");
+        cMap.put("evalcriteria", "Criterios de evaluación");
+        cMap.put("evalpreparation", "Preparación para la evaluación");
+        cMap.put("evalsubproc", "Procedimientos de presentación y penalidades");
+        cMap.put("actResBefore", "Actividades y/o Recursos antes de la sesión");
+        cMap.put("actResDuring", "Actividades y/o Recursos durante de la sesión");
+        cMap.put("actResAfter", "Actividades y/o Recursos después de la sesión");
         rubricMap_es = Collections.unmodifiableMap(cMap);
     }	
 	
@@ -143,7 +143,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		String lang = "fr_CA";
 		if (osylLang.equals("ENG")) {
 			lang = "en_US";
-		} else if (osylCO.equals("ES")) {
+		} else if (osylLang.equals("ES")) {
 			lang = "es";
 		}
 		
