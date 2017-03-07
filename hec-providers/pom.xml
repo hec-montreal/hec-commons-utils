@@ -69,6 +69,11 @@
 			<artifactId>sakai-kernel-api</artifactId>
 			<version>11.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-citations-api</artifactId>
+			<version>11.2</version>
+		</dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>

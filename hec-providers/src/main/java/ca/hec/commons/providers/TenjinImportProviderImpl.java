@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Collections;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 
 import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
 import ca.hec.tenjin.api.model.syllabus.Syllabus;
@@ -37,10 +37,22 @@ import org.sakaiquebec.opensyllabus.shared.model.COElementAbstract;
 import org.sakaiquebec.opensyllabus.shared.model.COModelInterface;
 import org.sakaiquebec.opensyllabus.shared.model.COPropertiesType;
 import org.sakaiquebec.opensyllabus.shared.model.COUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.citation.api.Citation;
+import org.sakaiproject.citation.api.CitationCollection;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -50,14 +62,14 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 
 public class TenjinImportProviderImpl implements TenjinImportProvider {
-	private static Log log = LogFactory.getLog(TenjinImportProviderImpl.class);
+	private static Logger log = LoggerFactory.getLogger(TenjinImportProviderImpl.class);
 	
 	@Setter
 	ContentHostingService contentService;
-	
+	@Setter
+	CitationService citationService;
 	@Setter
 	OsylSiteService osylSiteService;
-	
 	@Setter
 	TemplateService templateService;
 	
@@ -175,6 +187,10 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		
 		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, lang);
 		
+		// keep track of already copied resources
+		Map<String, String> copiedResources = new HashMap<String, String>();
+		CitationCollection destinationCitationList = null;
+		
 		for (COModelInterface e : osylCO.getModeledContent().getChildrens()) {
 			SyllabusCompositeElement copyTo = null;
 			
@@ -191,7 +207,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			}
 
 			if (copyTo != null)
-				recursiveCopyToTenjinSyllabus(copyTo, e, lang, templateRules, destinationSiteId);			
+				recursiveCopyToTenjinSyllabus(copyTo, e, lang, templateRules, destinationSiteId, destinationCitationList, copiedResources);			
 		}
 	
 		// set title
@@ -208,7 +224,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		
 	}
 	
-	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang, HashMap<String, HashMap<String, Object>> templateRules, String destinationSiteId) {
+	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang, HashMap<String, HashMap<String, Object>> templateRules, String destinationSiteId, CitationCollection destinationCitationList, Map<String, String> copiedResources) {
 		SyllabusCompositeElement compositeElement = null;
 		
 		if (comi instanceof COContentResourceProxy) {
@@ -240,7 +256,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				rubricTitle = rubricMap_es.getOrDefault(rubricKey, rubricKey);				
 			}
 			
-			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp, destinationSiteId);
+			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp, destinationSiteId, destinationCitationList, copiedResources);
 			
 			// find the desired rubric
 			boolean added = false;
@@ -302,9 +318,9 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			for (Object child : abstractElement.getChildrens()) {
 				
 				if (compositeElement != null) {
-					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang, templateRules, destinationSiteId);
+					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang, templateRules, destinationSiteId, destinationCitationList, copiedResources);
 				} else {
-					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang, templateRules, destinationSiteId);
+					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang, templateRules, destinationSiteId, destinationCitationList, copiedResources);
 				}
 			}
 		}
@@ -421,13 +437,17 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			ret.setCreatedDate(new Date());
 			// TODO created by current user.
 			//ret.setCreatedBy()
+
+			log.debug(ret.toString());
 		}
 		
-		log.debug(ret);
 		return ret;
 	}
 	
-	private AbstractSyllabusElement convertToTenjinElement(COContentResourceProxy element, String destinationSiteId) {
+	private AbstractSyllabusElement convertToTenjinElement(COContentResourceProxy element, 
+			String destinationSiteId, CitationCollection destinationCitationList, 
+			Map<String, String> copiedResources) {
+		
 		AbstractSyllabusElement ret = null;
 		
 		COModelInterface resource = element.getResource();
@@ -471,13 +491,18 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			ret.setDescription(description);
 			
 			String newUri = null;
-			try {
-				newUri = copyResource(uri, destinationSiteId);
-			} catch (PermissionException | IdUnusedException | TypeException | InUseException | OverQuotaException
-					| IdUsedException | ServerOverloadException | InconsistentException | IdLengthException
-					| IdUniquenessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(!copiedResources.containsKey(uri)) {
+				try {
+					newUri = copyResource(uri, destinationSiteId);
+					copiedResources.put(uri, newUri);
+				} catch (PermissionException | IdUnusedException | TypeException | InUseException | OverQuotaException
+						| IdUsedException | ServerOverloadException | InconsistentException | IdLengthException
+						| IdUniquenessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				newUri = copiedResources.get(uri);
 			}
 			
 			attributes.put("documentId", newUri);
@@ -491,11 +516,26 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			String title = element.getProperty("label");
 			String description = element.getProperty("comment");
 
+			String newCitationId = null;
+			if (!copiedResources.containsKey(uri)) {
+				try {
+					newCitationId = copyCitation(uri, destinationCitationList, destinationSiteId);
+					copiedResources.put(uri, newCitationId);
+				} catch (PermissionException | IdUnusedException | TypeException | InUseException | OverQuotaException
+						| IdUsedException | ServerOverloadException | InconsistentException | IdLengthException
+						| IdUniquenessException | IdInvalidException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+			} else {
+				newCitationId = copiedResources.get(uri);
+			}
+				
 			//TODO: copy the citation first
 			ret = new SyllabusCitationElement();
 			ret.setTitle(title);
 			ret.setDescription(description);
-			attributes.put("citationId", uri);
+			attributes.put("citationId", newCitationId);
 			
 		} else if (resource.getType().equals("Entity")) {
 			
@@ -505,7 +545,6 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			String title = element.getProperty("label");
 			String description = element.getProperty("comment");
 
-			//TODO: copy the resource first
 			ret = new SyllabusSakaiToolElement();
 			ret.setTitle(title);
 			ret.setDescription(description);
@@ -533,33 +572,35 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 
 		}
 		
-		ret.setAttributes(attributes);
-				
-		// We are generating a common syllabus
-		ret.setCommon(true);
-		
-		// elements are not public by default
-		ret.setPublicElement(false);
-		
-		// set hidden
-		String visible = element.getProperty("visible"); 
-		if (visible != null && visible.equals("false")) 
-			ret.setHidden(true);
-		else 
-			ret.setHidden(false);
-		
-		// set important
-		String importance = element.getProperty("importance"); 
-		if (importance != null && importance.equals("true"))
-			ret.setImportant(true);
-		else
-			ret.setImportant(false);
-		
-		ret.setCreatedDate(new Date());
-		//TODO : set currentuser
-		//ret.setCreatedBy(createdBy);
-		
-		log.debug(ret);
+		if (ret != null) {
+			ret.setAttributes(attributes);
+
+			// We are generating a common syllabus
+			ret.setCommon(true);
+
+			// elements are not public by default
+			ret.setPublicElement(false);
+
+			// set hidden
+			String visible = element.getProperty("visible"); 
+			if (visible != null && visible.equals("false")) 
+				ret.setHidden(true);
+			else 
+				ret.setHidden(false);
+
+			// set important
+			String importance = element.getProperty("importance"); 
+			if (importance != null && importance.equals("true"))
+				ret.setImportant(true);
+			else
+				ret.setImportant(false);
+
+			ret.setCreatedDate(new Date());
+			//TODO : set currentuser
+			//ret.setCreatedBy(createdBy);
+
+			log.debug(ret.toString());
+		}
 		return ret;
 	}
 
@@ -568,5 +609,39 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		String newSiteCollectionId = contentService.getSiteCollection(newSiteId);
 		String newId = contentService.copyIntoFolder(uri, newSiteCollectionId);
 		return newId;
+	}	
+
+	private String copyCitation(String citationId, 
+			CitationCollection adf, String newSiteId) throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException, IdInvalidException {
+
+		String newSiteCollectionId = contentService.getSiteCollection(newSiteId);
+		String citationListName = "tmp"; //TODO i18n
+		CitationCollection destinationCitationList = null;
+		
+		try {
+			ContentResource cr = contentService.getResource(newSiteCollectionId + citationListName);
+			destinationCitationList = citationService.getCollection(new String(cr.getContent()));
+		} catch (IdUnusedException e) {
+			ContentResourceEdit cre =
+					contentService.addResource(newSiteCollectionId, citationListName, null, 1);
+		
+			destinationCitationList = citationService.addCollection();
+			cre.setContent(destinationCitationList.getId().getBytes());
+			cre.setResourceType(CitationService.CITATION_LIST_ID);
+			cre.setContentType(ResourceType.MIME_TYPE_HTML);
+
+			contentService.commitResource(cre, NotificationService.NOTI_NONE);			
+		}
+		
+		ContentResource oldListResource = contentService.getResource(citationId.substring(0, citationId.lastIndexOf('/')));
+		CitationCollection oldCollection = citationService.getCollection(new String(oldListResource.getContent()));
+		
+		String oldCitationId = citationId.substring(citationId.lastIndexOf('/')+1);
+		Citation oldCitation = oldCollection.getCitation(oldCitationId);
+		
+		destinationCitationList.add(oldCitation);
+		citationService.save(destinationCitationList);
+		
+		return destinationCitationList.getReference() + "/" + oldCitationId;
 	}	
 }
