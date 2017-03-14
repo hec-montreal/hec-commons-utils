@@ -51,6 +51,8 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -99,6 +101,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         aMap.put("actResBefore", "Activités/Ressources avant la séance");
         aMap.put("actResDuring", "Activités/Ressources pendant la séance");
         aMap.put("actResAfter", "Activités/Ressources après la séance");
+        aMap.put("citationListName", "Références bibliographiques du cours");
         rubricMap_fr = Collections.unmodifiableMap(aMap);
         
         Map<String, String> bMap = new HashMap<String, String>();
@@ -122,6 +125,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         bMap.put("actResBefore", "Activities/Resources before session");
         bMap.put("actResDuring", "Activities/Resources during session");
         bMap.put("actResAfter", "Activities/Resources after session");
+        bMap.put("citationListName", "Course citation list");
         rubricMap_en = Collections.unmodifiableMap(bMap);
 
         Map<String, String> cMap = new HashMap<String, String>();
@@ -145,6 +149,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         cMap.put("actResBefore", "Actividades y/o Recursos antes de la sesión");
         cMap.put("actResDuring", "Actividades y/o Recursos durante de la sesión");
         cMap.put("actResAfter", "Actividades y/o Recursos después de la sesión");
+        cMap.put("citationListName", "Curso referencias");
         rubricMap_es = Collections.unmodifiableMap(cMap);
     }	
 	
@@ -256,7 +261,9 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				rubricTitle = rubricMap_es.getOrDefault(rubricKey, rubricKey);				
 			}
 			
-			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp, destinationSiteId, destinationCitationList, copiedResources);
+			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp, destinationSiteId, copiedResources, lang);
+			if (tenjinElement == null)
+				return;
 			
 			// find the desired rubric
 			boolean added = false;
@@ -435,8 +442,6 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			ret.setImportant(false);
 			
 			ret.setCreatedDate(new Date());
-			// TODO created by current user.
-			//ret.setCreatedBy()
 
 			log.debug(ret.toString());
 		}
@@ -445,8 +450,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 	}
 	
 	private AbstractSyllabusElement convertToTenjinElement(COContentResourceProxy element, 
-			String destinationSiteId, CitationCollection destinationCitationList, 
-			Map<String, String> copiedResources) {
+			String destinationSiteId, Map<String, String> copiedResources, String locale) {
 		
 		AbstractSyllabusElement ret = null;
 		
@@ -519,7 +523,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			String newCitationId = null;
 			if (!copiedResources.containsKey(uri)) {
 				try {
-					newCitationId = copyCitation(uri, destinationCitationList, destinationSiteId);
+					newCitationId = copyCitation(uri, destinationSiteId, locale);
 					copiedResources.put(uri, newCitationId);
 				} catch (PermissionException | IdUnusedException | TypeException | InUseException | OverQuotaException
 						| IdUsedException | ServerOverloadException | InconsistentException | IdLengthException
@@ -530,12 +534,14 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			} else {
 				newCitationId = copiedResources.get(uri);
 			}
-				
-			//TODO: copy the citation first
-			ret = new SyllabusCitationElement();
-			ret.setTitle(title);
-			ret.setDescription(description);
-			attributes.put("citationId", newCitationId);
+
+			// if citation is not in it's original list anymore, it is not added.
+			if (newCitationId != null) {
+				ret = new SyllabusCitationElement();
+				ret.setTitle(title);
+				ret.setDescription(description);
+				attributes.put("citationId", newCitationId);
+			}
 			
 		} else if (resource.getType().equals("Entity")) {
 			
@@ -596,8 +602,6 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				ret.setImportant(false);
 
 			ret.setCreatedDate(new Date());
-			//TODO : set currentuser
-			//ret.setCreatedBy(createdBy);
 
 			log.debug(ret.toString());
 		}
@@ -611,11 +615,19 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		return newId;
 	}	
 
-	private String copyCitation(String citationId, 
-			CitationCollection adf, String newSiteId) throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException, IdInvalidException {
+	private String copyCitation(String citationId, String newSiteId, String locale) 
+			throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException, IdInvalidException {
 
 		String newSiteCollectionId = contentService.getSiteCollection(newSiteId);
-		String citationListName = "tmp"; //TODO i18n
+		
+		String citationListName = null; 
+		if (locale.equals("en_US"))
+			citationListName = rubricMap_en.get("citationListName");
+		else if (locale.equals("es"))
+			citationListName = rubricMap_es.get("citationListName");
+		else
+			citationListName = rubricMap_fr.get("citationListName");
+		
 		CitationCollection destinationCitationList = null;
 		
 		try {
@@ -630,6 +642,15 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			cre.setResourceType(CitationService.CITATION_LIST_ID);
 			cre.setContentType(ResourceType.MIME_TYPE_HTML);
 
+			ResourcePropertiesEdit props = cre.getPropertiesEdit();
+			props.addProperty(
+				ContentHostingService.PROP_ALTERNATE_REFERENCE,
+				org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
+			props.addProperty(ResourceProperties.PROP_CONTENT_TYPE,
+				ResourceType.MIME_TYPE_HTML);
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME,
+				citationListName);
+
 			contentService.commitResource(cre, NotificationService.NOTI_NONE);			
 		}
 		
@@ -637,11 +658,17 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		CitationCollection oldCollection = citationService.getCollection(new String(oldListResource.getContent()));
 		
 		String oldCitationId = citationId.substring(citationId.lastIndexOf('/')+1);
-		Citation oldCitation = oldCollection.getCitation(oldCitationId);
+		
+		Citation oldCitation = null;
+		try {
+			oldCitation = oldCollection.getCitation(oldCitationId);
+		} catch (IdUnusedException e) {
+			return null;
+		}
 		
 		destinationCitationList.add(oldCitation);
 		citationService.save(destinationCitationList);
 		
-		return destinationCitationList.getReference() + "/" + oldCitationId;
+		return newSiteCollectionId + citationListName + "/" + oldCitationId;
 	}	
 }
