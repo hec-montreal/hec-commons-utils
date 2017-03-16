@@ -551,7 +551,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			}
 			
 			attributes.put("documentId", newUri);
-			attributes.put("documentType", type);
+			attributes.put("documentType", Integer.toString(1)); //TODO fix this
 			
 		} else if (resource.getType().equals("BiblioResource")) {
 			
@@ -708,10 +708,14 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		try {
 			oldCitation = oldCollection.getCitation(oldCitationId);
 		} catch (IdUnusedException e) {
+			log.warn("Cannot retrieve citation " + oldCitationId);
 			return null;
 		}
 		
-		destinationCitationList.add(oldCitation);
+		Citation newCitation = citationService.copyCitation(oldCitation);
+		citationService.save(newCitation);
+		
+		destinationCitationList.add(newCitation);
 		citationService.save(destinationCitationList);
 		
 		return newSiteCollectionId + citationListName + "/" + oldCitationId;
