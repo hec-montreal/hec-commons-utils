@@ -67,12 +67,12 @@
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
-			<version>11.2</version>
+			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-citations-api</artifactId>
-			<version>11.2</version>
+			<version>${sakai.version}</version>
 		</dependency>
         <dependency>
             <groupId>commons-logging</groupId>
