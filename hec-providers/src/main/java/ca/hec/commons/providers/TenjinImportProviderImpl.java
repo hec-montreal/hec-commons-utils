@@ -583,8 +583,8 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				attributes.put("citationId", newCitationId);
 			}
 			
-			if (citationTypes_fr.containsKey(type))
-				attributes.put("citationType", citationTypes_fr.get(type).toString());
+			if (citationTypes.containsKey(type))
+				attributes.put("citationType", citationTypes.get(type).toString());
 			
 		} else if (resource.getType().equals("Entity")) {
 			
