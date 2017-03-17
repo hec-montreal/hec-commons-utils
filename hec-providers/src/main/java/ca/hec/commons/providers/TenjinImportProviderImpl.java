@@ -80,9 +80,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
     private static final Map<String, String> rubricMap_en;
     private static final Map<String, String> rubricMap_es;
     
-    private static final Map<String, Integer> citationTypes_fr;
-//    private static final Map<String, String> citationTypes_en;
-//    private static final Map<String, String> citationTypes_es;
+    private static final Map<String, String> citationTypes;
     
     static {
         Map<String, String> aMap = new HashMap<String, String>();
@@ -158,40 +156,40 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         rubricMap_es = Collections.unmodifiableMap(cMap);
 
         // citation type keywords from opensyllabus
-        Map<String, Integer> dMap = new HashMap<String, Integer>();
-        dMap.put("article", 4);
-        dMap.put("news_article", 5);
-        dMap.put("scientific_article", 4);
-        dMap.put("professional_article", 4);
-        dMap.put("unpublished_article", 4);
-        dMap.put("slides", 6);
-        dMap.put("exercise", 7);
-        dMap.put("solution", 8);
-        dMap.put("case", 3);
-        dMap.put("course_package", 20);
-        dMap.put("report", 9);
-        dMap.put("consultant_report", 9);
-        dMap.put("annual_report", 9);
-        dMap.put("governement_report", 9);
-        dMap.put("international_organization_report", 9);
-        dMap.put("data", 10);
-        dMap.put("document", 20);
-        dMap.put("pedagogical_document", 11);
-        dMap.put("book", 1);
-        dMap.put("book_chapter", 1);
-        dMap.put("survey", 12);
-        dMap.put("past_exam", 13);
-        dMap.put("website", 14);
-        dMap.put("image", 20);
-        dMap.put("graphic", 20);
-        dMap.put("audio", 15);
-        dMap.put("video", 16);
-        dMap.put("simulation", 18);
-        dMap.put("game", 18);
-        dMap.put("software", 19);
-        dMap.put("other", 20);
-        dMap.put("noType", 20);
-        citationTypes_fr = Collections.unmodifiableMap(dMap);
+        Map<String, String> dMap = new HashMap<String, String>();
+        dMap.put("article", "REFERENCE_TYPE_ARTICLE");
+        dMap.put("news_article", "REFERENCE_TYPE_ARTICLE_NEWS");
+        dMap.put("scientific_article", "REFERENCE_TYPE_ARTICLE");
+        dMap.put("professional_article", "REFERENCE_TYPE_ARTICLE");
+        dMap.put("unpublished_article", "REFERENCE_TYPE_ARTICLE");
+        dMap.put("slides", "REFERENCE_TYPE_SLIDES");
+        dMap.put("exercise", "REFERENCE_TYPE_EXERCISE");
+        dMap.put("solution", "REFERENCE_TYPE_SOLUTION");
+        dMap.put("case", "REFERENCE_TYPE_CASE");
+        dMap.put("course_package", "REFERENCE_TYPE_OTHER");
+        dMap.put("report", "REFERENCE_TYPE_REPORT");
+        dMap.put("consultant_report", "REFERENCE_TYPE_REPORT");
+        dMap.put("annual_report", "REFERENCE_TYPE_REPORT");
+        dMap.put("governement_report", "REFERENCE_TYPE_REPORT");
+        dMap.put("international_organization_report", "REFERENCE_TYPE_REPORT");
+        dMap.put("data", "REFERENCE_TYPE_DATA");
+        dMap.put("document", "REFERENCE_TYPE_OTHER");
+        dMap.put("pedagogical_document", "REFERENCE_TYPE_PEDAGOGIC");
+        dMap.put("book", "REFERENCE_TYPE_BOOK");
+        dMap.put("book_chapter", "REFERENCE_TYPE_BOOK_CHAPTER");
+        dMap.put("survey", "REFERENCE_TYPE_POLL");
+        dMap.put("past_exam", "REFERENCE_TYPE_OLD_EXAM");
+        dMap.put("website", "REFERENCE_TYPE_WEBSITE");
+        dMap.put("image", "REFERENCE_TYPE_OTHER");
+        dMap.put("graphic", "REFERENCE_TYPE_OTHER");
+        dMap.put("audio", "REFERENCE_TYPE_AUDIO");
+        dMap.put("video", "REFERENCE_TYPE_VIDEO");
+        dMap.put("simulation", "REFERENCE_TYPE_SIMULATION");
+        dMap.put("game", "REFERENCE_TYPE_SIMULATION");
+        dMap.put("software", "REFERENCE_TYPE_SOFTWARE");
+        dMap.put("other", "REFERENCE_TYPE_OTHER");
+        dMap.put("noType", "REFERENCE_TYPE_OTHER");
+        citationTypes = Collections.unmodifiableMap(dMap);
     }	
 	
     @Override
