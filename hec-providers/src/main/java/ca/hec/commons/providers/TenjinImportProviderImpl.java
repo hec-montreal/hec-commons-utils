@@ -718,6 +718,6 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		destinationCitationList.add(newCitation);
 		citationService.save(destinationCitationList);
 		
-		return newSiteCollectionId + citationListName + "/" + oldCitationId;
+		return newSiteCollectionId + citationListName + "/" + newCitation.getId();
 	}	
 }
