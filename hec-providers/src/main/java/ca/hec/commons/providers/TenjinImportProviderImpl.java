@@ -81,30 +81,32 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
     private static final Map<String, String> rubricMap_es;
     
     private static final Map<String, String> citationTypes;
+    private static final Map<String, String> documentTypes;
+    private static final Map<String, String> hyperlinkTypes;
     
     static {
         Map<String, String> aMap = new HashMap<String, String>();
         aMap.put("description", "Description");
         aMap.put("objectives", "Objectifs");
-        aMap.put("learningstrat", "Approche p√©dagogique");
+        aMap.put("learningstrat", "Approche pÈdagogique");
         aMap.put("coordinators", "Coordonnateur");
         aMap.put("lecturers", "Enseignant(s)");
         aMap.put("teachingassistants", "Stagiaire(s) d'enseignement");
-        aMap.put("speakers", "Conf√©rencier(s)");
-        aMap.put("secretaries", "Secr√©taire(s)");
+        aMap.put("speakers", "ConfÈrencier(s)");
+        aMap.put("secretaries", "SecrÈtaire(s)");
         aMap.put("bibliographicres", "Ressources bibliographiques");
-        aMap.put("misresources", "Ressources g√©n√©rales");
-        aMap.put("complbibres", "Ressources bibliographiques compl√©mentaires");
+        aMap.put("misresources", "Ressources gÈnÈrales");
+        aMap.put("complbibres", "Ressources bibliographiques complÈmentaires");
         aMap.put("case", "Cas");
         aMap.put("tools", "Outils");
         aMap.put("pastexams", "Anciens examens");
-        aMap.put("evalcriteria", "Crit√®res d'√©valuation");
-        aMap.put("evalpreparation", "Pr√©paration √† l'√©valuation");
-        aMap.put("evalsubproc", "Modalit√©s de remise et p√©nalit√©s");
-        aMap.put("actResBefore", "Activit√©s/Ressources avant la s√©ance");
-        aMap.put("actResDuring", "Activit√©s/Ressources pendant la s√©ance");
-        aMap.put("actResAfter", "Activit√©s/Ressources apr√®s la s√©ance");
-        aMap.put("citationListName", "R√©f√©rences bibliographiques du cours");
+        aMap.put("evalcriteria", "CritËres d'Èvaluation");
+        aMap.put("evalpreparation", "PrÈparation ‡ l'Èvaluation");
+        aMap.put("evalsubproc", "ModalitÈs de remise et pÈnalitÈs");
+        aMap.put("actResBefore", "ActivitÈs/Ressources avant la sÈance");
+        aMap.put("actResDuring", "ActivitÈs/Ressources pendant la sÈance");
+        aMap.put("actResAfter", "ActivitÈs/Ressources aprËs la sÈance");
+        aMap.put("citationListName", "RÈfÈrences bibliographiques du cours");
         rubricMap_fr = Collections.unmodifiableMap(aMap);
         
         Map<String, String> bMap = new HashMap<String, String>();
@@ -132,7 +134,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         rubricMap_en = Collections.unmodifiableMap(bMap);
 
         Map<String, String> cMap = new HashMap<String, String>();
-        cMap.put("description", "Descripci√≥n");
+        cMap.put("description", "DescripciÛn");
         cMap.put("objectives", "Objetivos");
         cMap.put("learningstrat", "Estrategia de aprendizaje");
         cMap.put("coordinators", "Coordinador");
@@ -140,18 +142,18 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         cMap.put("teachingassistants", "Profesor(es) ayudant(es)");
         cMap.put("speakers", "Conferencista(s)");
         cMap.put("secretaries", "Secretaria(s)");
-        cMap.put("bibliographicres", "Referencias bibliogr√°ficas");
+        cMap.put("bibliographicres", "Referencias bibliogr·ficas");
         cMap.put("misresources", "Recursos generales");
-        cMap.put("complbibres", "Recursos bibliogr√°ficos complementarios");
+        cMap.put("complbibres", "Recursos bibliogr·ficos complementarios");
         cMap.put("case", "Caso");
         cMap.put("tools", "Herramientas");
-        cMap.put("pastexams", "Ex√°menes anteriores");
-        cMap.put("evalcriteria", "Criterios de evaluaci√≥n");
-        cMap.put("evalpreparation", "Preparaci√≥n para la evaluaci√≥n");
-        cMap.put("evalsubproc", "Procedimientos de presentaci√≥n y penalidades");
-        cMap.put("actResBefore", "Actividades y/o Recursos antes de la sesi√≥n");
-        cMap.put("actResDuring", "Actividades y/o Recursos durante de la sesi√≥n");
-        cMap.put("actResAfter", "Actividades y/o Recursos despu√©s de la sesi√≥n");
+        cMap.put("pastexams", "Ex·menes anteriores");
+        cMap.put("evalcriteria", "Criterios de evaluaciÛn");
+        cMap.put("evalpreparation", "PreparaciÛn para la evaluaciÛn");
+        cMap.put("evalsubproc", "Procedimientos de presentaciÛn y penalidades");
+        cMap.put("actResBefore", "Actividades y/o Recursos antes de la sesiÛn");
+        cMap.put("actResDuring", "Actividades y/o Recursos durante de la sesiÛn");
+        cMap.put("actResAfter", "Actividades y/o Recursos despuÈs de la sesiÛn");
         cMap.put("citationListName", "Curso referencias");
         rubricMap_es = Collections.unmodifiableMap(cMap);
 
@@ -190,6 +192,76 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         dMap.put("other", "REFERENCE_TYPE_OTHER");
         dMap.put("noType", "REFERENCE_TYPE_OTHER");
         citationTypes = Collections.unmodifiableMap(dMap);
+        
+        Map<String, String> eMap = new HashMap<String, String>();
+//      eMap.put("article", "");
+//      eMap.put("news_article", "");
+//      eMap.put("scientific_article", "");
+//      eMap.put("professional_article", "");
+//      eMap.put("unpublished_article", "");
+//      eMap.put("slides", "");
+//      eMap.put("exercise", "");
+//      eMap.put("solution", "");
+//      eMap.put("case", "");
+//      eMap.put("course_package", "");
+        eMap.put("report", "DOCUMENT_TYPE_REPORT");
+        eMap.put("consultant_report", "DOCUMENT_TYPE_REPORT");
+        eMap.put("annual_report", "DOCUMENT_TYPE_REPORT");
+        eMap.put("governement_report", "DOCUMENT_TYPE_REPORT");
+        eMap.put("international_organization_report", "DOCUMENT_TYPE_REPORT");
+//      eMap.put("data", "");
+//      eMap.put("document", "");
+//      eMap.put("pedagogical_document", "");
+//      eMap.put("book", "");
+//      eMap.put("book_chapter", "");
+//      eMap.put("survey", "");
+//      eMap.put("past_exam", "");
+//      eMap.put("website", "");
+//      eMap.put("image", "");
+//      eMap.put("graphic", "");
+//      eMap.put("audio", "");
+//      eMap.put("video", "");
+//      eMap.put("simulation", "");
+//      eMap.put("game", "");
+//      eMap.put("software", "");
+//      eMap.put("other", "");
+//      eMap.put("noType", "");
+      documentTypes = Collections.unmodifiableMap(eMap);
+      
+      Map<String, String> fMap = new HashMap<String, String>();
+      fMap.put("article", "HYPERLINK_TYPE_ARTICLE");
+      fMap.put("news_article", "HYPERLINK_TYPE_ARTICLE");
+      fMap.put("scientific_article", "HYPERLINK_TYPE_ARTICLE");
+      fMap.put("professional_article", "HYPERLINK_TYPE_ARTICLE");
+      fMap.put("unpublished_article", "HYPERLINK_TYPE_ARTICLE");
+//    eMap.put("slides", "");
+//    eMap.put("exercise", "");
+//    eMap.put("solution", "");
+//    eMap.put("case", "");
+//    eMap.put("course_package", "");
+      fMap.put("report", "HYPERLINK_TYPE_REPORT");
+      fMap.put("consultant_report", "HYPERLINK_TYPE_REPORT");
+      fMap.put("annual_report", "HYPERLINK_TYPE_REPORT");
+      fMap.put("governement_report", "HYPERLINK_TYPE_REPORT");
+      fMap.put("international_organization_report", "HYPERLINK_TYPE_REPORT");
+//    eMap.put("data", "");
+//    eMap.put("document", "");
+//    eMap.put("pedagogical_document", "");
+//    eMap.put("book", "");
+//    eMap.put("book_chapter", "");
+//    eMap.put("survey", "");
+      fMap.put("past_exam", "HYPERLINK_TYPE_ARTICLE");
+//    eMap.put("website", "");
+//    eMap.put("image", "");
+//    eMap.put("graphic", "");
+//    eMap.put("audio", "");
+//    eMap.put("video", "");
+      fMap.put("simulation", "HYPERLINK_TYPE_SIMULATION");
+      fMap.put("game", "HYPERLINK_TYPE_SIMULATION");
+//    eMap.put("software", "");
+//    eMap.put("other", "");
+//    eMap.put("noType", "");
+      hyperlinkTypes = Collections.unmodifiableMap(fMap);  
     }	
 	
     @Override
@@ -260,7 +332,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		else if (lang.equals("en_US"))
 			syllabus.setTitle("Common");
 		else if (lang.equals("es"))
-			syllabus.setTitle("Com√∫n");
+			syllabus.setTitle("Com˙n");
 		
 		syllabus.setCommon(true);
 		
@@ -509,7 +581,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			String uri = resource.getProperty(
 				    COPropertiesType.IDENTIFIER,
 				    COPropertiesType.IDENTIFIER_TYPE_URI);
-			String type = resource.getProperty("asmResourceType"); //TODO
+			String type = resource.getProperty("asmResourceType");
 			String title = element.getProperty("label");
 			String description = element.getProperty("comment");
 			
@@ -518,14 +590,15 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			ret.setDescription(description);
 			
 			attributes.put("hyperlinkUrl", uri);
-			attributes.put("hyperlinkType", type); //TODO : probably have to translate the types?
+
+			if (hyperlinkTypes.containsKey(type))
+				attributes.put("hyperlinkType", hyperlinkTypes.get(type));
 			
 		} else if (resource.getType().equals("Document")) {
-			String license = resource.getProperty("license");
 			String uri = resource.getProperty(
 				    COPropertiesType.IDENTIFIER,
 				    COPropertiesType.IDENTIFIER_TYPE_URI);
-			String type = resource.getProperty("asmResourceType"); //TODO
+			String type = resource.getProperty("asmResourceType");
 			String title = element.getProperty("label");
 			String description = element.getProperty("comment");
 						
@@ -549,7 +622,9 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			}
 			
 			attributes.put("documentId", newUri);
-			attributes.put("documentType", Integer.toString(1)); //TODO fix this
+
+			if (documentTypes.containsKey(type))
+				attributes.put("documentType", documentTypes.get(type));
 			
 		} else if (resource.getType().equals("BiblioResource")) {
 			
@@ -584,7 +659,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			}
 			
 			if (citationTypes.containsKey(type))
-				attributes.put("citationType", citationTypes.get(type).toString());
+				attributes.put("citationType", citationTypes.get(type));
 			
 		} else if (resource.getType().equals("Entity")) {
 			
