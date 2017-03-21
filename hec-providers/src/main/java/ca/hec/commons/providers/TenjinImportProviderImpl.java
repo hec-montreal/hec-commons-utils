@@ -83,6 +83,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
     private static final Map<String, String> citationTypes;
     private static final Map<String, String> documentTypes;
     private static final Map<String, String> hyperlinkTypes;
+    private static final Map<String, String> contactTitles;
     
     static {
         Map<String, String> aMap = new HashMap<String, String>();
@@ -261,7 +262,24 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 //    eMap.put("software", "");
 //    eMap.put("other", "");
 //    eMap.put("noType", "");
-      hyperlinkTypes = Collections.unmodifiableMap(fMap);  
+      hyperlinkTypes = Collections.unmodifiableMap(fMap);
+      
+      Map<String, String> gMap = new HashMap<String, String>();
+      gMap.put("Adjunct Professor", "FORM_CONTACT_TITLE_ADJUNCTPROFESSOR");
+      gMap.put("Affiliated Professor", "FORM_CONTACT_TITLE_AFFILIATEDPROFESSOR");
+      gMap.put("Assistant Professor", "FORM_CONTACT_TITLE_ASSISTANTPROFESSOR");
+      gMap.put("Associate Professor", "FORM_CONTACT_TITLE_ASSOCIATEPROFESSOR");
+      gMap.put("Full-time Faculty Lecturer", "FORM_CONTACT_TITLE_FULLTIMEFACULTYLECTURER");
+      gMap.put("Full-time Lecturer", "FORM_CONTACT_TITLE_FULLTIMELECTURER");
+      gMap.put("Guest Professor", "FORM_CONTACT_TITLE_GUESTPROFESSOR");
+      gMap.put("Honorary Professor", "FORM_CONTACT_TITLE_HONORARYPROFESSOR");
+      gMap.put("Part-time Faculty Lecturer", "FORM_CONTACT_TITLE_PARTTIMEFACULTYLECTURER");
+      gMap.put("Part-time Lecturer", "FORM_CONTACT_TITLE_PARTTIMELECTURER");
+      gMap.put("Professor", "FORM_CONTACT_TITLE_PROFESSOR");
+      gMap.put("Secretary", "FORM_CONTACT_TITLE_SECRETARY");
+      gMap.put("Student", "FORM_CONTACT_TITLE_STUDENT");
+      gMap.put("Trainee", "FORM_CONTACT_TITLE_TRAINEE");
+      contactTitles = Collections.unmodifiableMap(gMap);
     }	
 	
     @Override
@@ -688,12 +706,13 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			
 			attributes.put("contactInfoFirstName", firstName);
 			attributes.put("contactInfoLastName", lastName);
-			attributes.put("contactInfoTitle", title);
 			attributes.put("contactInfoEmail", email);
 			attributes.put("contactInfoTelephone", telephone);
 			attributes.put("contactInfoOfficeRoom", officeRoom);
 			attributes.put("contactInfoAvailability", availability);
-
+			
+			if (contactTitles.containsKey(title.trim()))
+				attributes.put("contactInfoTitle", contactTitles.get(title.trim()));
 		}
 		
 		if (ret != null) {
@@ -773,8 +792,10 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		}
 		
 		ContentResource oldListResource = contentService.getResource(citationId.substring(0, citationId.lastIndexOf('/')));
-		CitationCollection oldCollection = citationService.getCollection(new String(oldListResource.getContent()));
+		if (oldListResource.getContent() == null)
+			return null;
 		
+		CitationCollection oldCollection = citationService.getCollection(new String(oldListResource.getContent()));
 		String oldCitationId = citationId.substring(citationId.lastIndexOf('/')+1);
 		
 		Citation oldCitation = null;
