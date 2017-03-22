@@ -279,6 +279,37 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
         gMap.put("Secretary", "CONTACT_TITLE_SECRETARY");
         gMap.put("Student", "CONTACT_TITLE_STUDENT");
         gMap.put("Trainee", "CONTACT_TITLE_TRAINEE");
+        
+        gMap.put("Professeur(e) associé(e)", "CONTACT_TITLE_ADJUNCTPROFESSOR");
+        gMap.put("Professeur(e) affilié(e)", "CONTACT_TITLE_AFFILIATEDPROFESSOR");
+        gMap.put("Professeur(e) adjoint(e)", "CONTACT_TITLE_ASSISTANTPROFESSOR");
+        gMap.put("Professeur(e) agrégé(e)", "CONTACT_TITLE_ASSOCIATEPROFESSOR");
+        gMap.put("Maître d'enseignement", "CONTACT_TITLE_FULLTIMEFACULTYLECTURER");
+        gMap.put("Attaché(e) d'enseignement", "CONTACT_TITLE_FULLTIMELECTURER");
+        gMap.put("Professeur(e) invité(e)", "CONTACT_TITLE_GUESTPROFESSOR");
+        gMap.put("Professeur(e) honoraire", "CONTACT_TITLE_HONORARYPROFESSOR");
+        gMap.put("Chargé(e) de cours", "CONTACT_TITLE_PARTTIMEFACULTYLECTURER");
+        gMap.put("Chargé(e) d'enseignement", "CONTACT_TITLE_PARTTIMELECTURER");
+        gMap.put("Professeur(e) titulaire", "CONTACT_TITLE_PROFESSOR");
+        gMap.put("Secrétaire", "CONTACT_TITLE_SECRETARY");
+        gMap.put("Étudiant(e)", "CONTACT_TITLE_STUDENT");
+        gMap.put("Stagiaire", "CONTACT_TITLE_TRAINEE");
+        
+        gMap.put("Profesor adjunto", "CONTACT_TITLE_ADJUNCTPROFESSOR");
+        gMap.put("Profesor afiliado", "CONTACT_TITLE_AFFILIATEDPROFESSOR");
+        gMap.put("Profesor adjunto", "CONTACT_TITLE_ASSISTANTPROFESSOR");
+        gMap.put("Profesor asociado", "CONTACT_TITLE_ASSOCIATEPROFESSOR");
+        gMap.put("Responsable de formación", "CONTACT_TITLE_FULLTIMEFACULTYLECTURER");
+        gMap.put("Responsable de formación", "CONTACT_TITLE_FULLTIMELECTURER");
+        gMap.put("Profesor visitante", "CONTACT_TITLE_GUESTPROFESSOR");
+        gMap.put("Profesor emérito", "CONTACT_TITLE_HONORARYPROFESSOR");
+        gMap.put("Docente de tiempo parcial", "CONTACT_TITLE_PARTTIMEFACULTYLECTURER");
+        gMap.put("Responsable de formación parcial", "CONTACT_TITLE_PARTTIMELECTURER");
+        gMap.put("Profesor", "CONTACT_TITLE_PROFESSOR");
+        gMap.put("Secretaria", "CONTACT_TITLE_SECRETARY");
+        gMap.put("Estudiante", "CONTACT_TITLE_STUDENT");
+        gMap.put("Pasante", "CONTACT_TITLE_TRAINEE");
+                
         contactTitles = Collections.unmodifiableMap(gMap);
     }	
 	
@@ -609,7 +640,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			
 			attributes.put("hyperlinkUrl", uri);
 
-			if (hyperlinkTypes.containsKey(type))
+			if (type != null && hyperlinkTypes.containsKey(type))
 				attributes.put("hyperlinkType", hyperlinkTypes.get(type));
 			
 		} else if (resource.getType().equals("Document")) {
@@ -641,7 +672,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			
 			attributes.put("documentId", newUri);
 
-			if (documentTypes.containsKey(type))
+			if (type != null && documentTypes.containsKey(type))
 				attributes.put("documentType", documentTypes.get(type));
 			
 		} else if (resource.getType().equals("BiblioResource")) {
@@ -676,7 +707,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				attributes.put("citationId", newCitationId);
 			}
 			
-			if (citationTypes.containsKey(type))
+			if (type != null && citationTypes.containsKey(type))
 				attributes.put("citationType", citationTypes.get(type));
 			
 		} else if (resource.getType().equals("Entity")) {
@@ -711,7 +742,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			attributes.put("contactInfoOfficeRoom", officeRoom);
 			attributes.put("contactInfoAvailability", availability);
 			
-			if (contactTitles.containsKey(title.trim()))
+			if (title != null && contactTitles.containsKey(title.trim()))
 				attributes.put("contactInfoTitle", contactTitles.get(title.trim()));
 		}
 		
