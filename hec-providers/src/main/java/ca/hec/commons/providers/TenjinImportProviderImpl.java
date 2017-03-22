@@ -769,6 +769,11 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			else
 				ret.setImportant(false);
 
+			String comment = element.getProperty("comment");
+			if (comment != null) {
+				ret.setDescription(comment);
+			}
+
 			ret.setCreatedDate(new Date());
 
 			log.debug(ret.toString());
