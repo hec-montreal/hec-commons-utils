@@ -680,6 +680,12 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			String uri = resource.getProperty(
 					COPropertiesType.IDENTIFIER,
 				    COPropertiesType.IDENTIFIER_TYPE_URI);
+			String library = resource.getProperty(
+					COPropertiesType.IDENTIFIER,
+				    COPropertiesType.IDENTIFIER_TYPE_LIBRARY);
+			String otherUrl = resource.getProperty(
+					COPropertiesType.IDENTIFIER,
+				    COPropertiesType.IDENTIFIER_TYPE_OTHERLINK);
 			String type = resource.getProperty("resourceType");
 			String title = element.getProperty("label");
 			String description = element.getProperty("comment");
@@ -707,6 +713,13 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				attributes.put("citationId", newCitationId);
 			}
 			
+			if (library != null && !library.equals("")) {
+				attributes.put("activateLibraryLink", "true"); 
+			}
+			if (otherUrl != null && !otherUrl.equals("")) {
+				attributes.put("activateOtherLink", "true");
+				attributes.put("otherLinkurl", otherUrl);
+			}
 			if (type != null && citationTypes.containsKey(type))
 				attributes.put("citationType", citationTypes.get(type));
 			
