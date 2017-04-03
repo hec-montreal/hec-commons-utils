@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>	
+	<artifactId>hec-providers</artifactId>
+	<version>1.1-SNAPSHOT</version>
+	<name>hec-providers</name>
+
+	<parent>
+		<groupId>ca.hec</groupId>
+		<artifactId>hec-commons-utils</artifactId>
+		<relativePath>../pom.xml</relativePath>
+		<version>1.1-SNAPSHOT</version>
+	</parent>
+
+	<packaging>sakai-component</packaging>
+
+	<properties>
+		<deploy.target>components</deploy.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>sakai-maven</id>
+			<name>Sakai Maven Repo</name>
+			<layout>default</layout>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<build>
+		<!-- configure the build to use the standard maven structure -->
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<plugins>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>sakai</artifactId>
+				<configuration>
+					<warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>ca.hec</groupId>
+			<artifactId>tenjin-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiquebec.opensyllabus</groupId>
+			<artifactId>osyl-common-api</artifactId>
+			<version>11-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiquebec.opensyllabus</groupId>
+			<artifactId>osyl-common-shared</artifactId>
+			<version>11-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-citations-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+	</dependencies>
+</project>
