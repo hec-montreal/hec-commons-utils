@@ -457,15 +457,13 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				newRubric.setImportant(false);
 				
 				newRubric.setCreatedDate(new Date());
-				// TODO created by current user.
-				//ret.setCreatedBy()
 				
 				// Get template structure ids for new rubric and element
 				newRubric.setTemplateStructureId(getTemplateStructureIdForElement(elem, newRubric, templateRules));
 				tenjinElement.setTemplateStructureId(getTemplateStructureIdForElement(newRubric, tenjinElement, templateRules));
 
 				newRubric.getElements().add(tenjinElement);
-				elem.getElements().add(newRubric);
+				addRubricInCorrectPosition(elem, newRubric, templateRules);
 			}
 			
 
@@ -524,6 +522,39 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		log.error(error);
 
 		return null;
+	}
+
+	private void addRubricInCorrectPosition(SyllabusCompositeElement parentElement, SyllabusRubricElement newRubric, HashMap<String, HashMap<String, Object>> templateRules) {
+		HashMap<String, Object> rulesForParent = null;
+
+		if (parentElement.getTemplateStructureId() != null && 
+				templateRules.containsKey(parentElement.getTemplateStructureId().toString()))
+			rulesForParent = templateRules.get(parentElement.getTemplateStructureId().toString());
+
+		List<AbstractSyllabusElement> tmpList = new ArrayList<AbstractSyllabusElement>();
+
+		if (rulesForParent != null && rulesForParent.containsKey("elements")) {
+			List<Object> elementsForParent = (List<Object>)rulesForParent.get("elements");
+			for (Object o : elementsForParent) {
+				HashMap<String, Object> map = (HashMap<String, Object>)o;
+				Long id = (Long)map.get("id");
+
+				if (newRubric.getTemplateStructureId().equals(id)) {
+					tmpList.add(newRubric);
+					continue;
+				}
+				if (parentElement.getElements() != null) {
+					for (AbstractSyllabusElement elem : parentElement.getElements()) {
+						if (elem.getTemplateStructureId().equals(id)) {
+							tmpList.add(elem);
+							break;
+						}
+					}
+				}
+			}
+
+			parentElement.setElements(tmpList);
+		}
 	}
 
 	private SyllabusCompositeElement convertToTenjinCompositeElement(COUnit element) {
