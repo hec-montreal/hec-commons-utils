@@ -36,6 +36,7 @@ import org.sakaiquebec.opensyllabus.shared.model.COContentResourceProxy;
 import org.sakaiquebec.opensyllabus.shared.model.COElementAbstract;
 import org.sakaiquebec.opensyllabus.shared.model.COModelInterface;
 import org.sakaiquebec.opensyllabus.shared.model.COPropertiesType;
+import org.sakaiquebec.opensyllabus.shared.model.COStructureElement;
 import org.sakaiquebec.opensyllabus.shared.model.COUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -326,7 +327,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			return null;
 		}
 		
-		if (osylCO == null) 
+		if (osylCO == null || osylCO.getModeledContent() == null) 
 			return null;
 
 		String osylLang = osylCO.getModeledContent().getProperty("language");
@@ -475,6 +476,15 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				compositeElement.setTemplateStructureId(getTemplateStructureIdForElement(elem, compositeElement, templateRules));
 				elem.getElements().add(compositeElement);
 			}
+		} else if (comi instanceof COStructureElement) {
+			COStructureElement struct = (COStructureElement) comi;
+			if (struct.getType().equals("PedagogicalStruct") && struct.getLabel() != null) {
+				compositeElement = convertToTenjinCompositeElement(struct);
+			}
+			if (compositeElement != null) {
+				compositeElement.setTemplateStructureId(getTemplateStructureIdForElement(elem, compositeElement, templateRules));
+				elem.getElements().add(compositeElement);
+			}
 		}
 		
 		if (comi instanceof COElementAbstract) {
@@ -557,11 +567,10 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		}
 	}
 
-	private SyllabusCompositeElement convertToTenjinCompositeElement(COUnit element) {
+	private SyllabusCompositeElement convertToTenjinCompositeElement(COElementAbstract element) {
 		SyllabusCompositeElement ret = null;
 		
 		if (element.getType().equals("AssessmentUnit")) {
-			// TODO : exam/eval attributes
 			HashMap<String, String> attributes = new HashMap<String, String>();
 			
 			if (element.getProperty("assessmentType") == null) {
@@ -616,6 +625,8 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			ret = new SyllabusLectureElement();
 		} else if (element.getType().equals("WorkSession")) {
 			ret = new SyllabusTutorialElement();
+		} else if (element.getType().equals("PedagogicalStruct")) {
+			ret = new SyllabusCompositeElement();
 		}
 
 		if (ret != null) {
