@@ -627,6 +627,11 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			ret = new SyllabusTutorialElement();
 		} else if (element.getType().equals("PedagogicalStruct")) {
 			ret = new SyllabusCompositeElement();
+
+			String description = element.getProperty("description");
+			if (description != null) {
+				ret.setDescription(description);
+			}
 		}
 
 		if (ret != null) {
