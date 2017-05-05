@@ -335,7 +335,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		if (osylLang.equals("ENG")) {
 			lang = "en_US";
 		} else if (osylLang.equals("ES")) {
-			lang = "es";
+			lang = "es_ES";
 		}
 		
 		HashMap<String, HashMap<String, Object>> templateRules = null;
