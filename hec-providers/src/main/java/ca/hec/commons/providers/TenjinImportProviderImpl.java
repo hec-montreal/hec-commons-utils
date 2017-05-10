@@ -381,8 +381,8 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 			syllabus.setTitle("Commun");
 		else if (lang.equals("en_US"))
 			syllabus.setTitle("Common");
-		else if (lang.equals("es"))
-			syllabus.setTitle("Com�n");
+		else if (lang.equals("es_ES"))
+			syllabus.setTitle("Comùn");
 		
 		syllabus.setCommon(true);
 		
@@ -418,7 +418,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 				rubricTitle = rubricMap_fr.getOrDefault(rubricKey, rubricKey);
 			} else if (lang.equals("en_US")) {
 				rubricTitle = rubricMap_en.getOrDefault(rubricKey, rubricKey);				
-			} else if (lang.equals("es")) {
+			} else if (lang.equals("es_ES")) {
 				rubricTitle = rubricMap_es.getOrDefault(rubricKey, rubricKey);				
 			}
 			
@@ -856,7 +856,7 @@ public class TenjinImportProviderImpl implements TenjinImportProvider {
 		String citationListName = null; 
 		if (locale.equals("en_US"))
 			citationListName = rubricMap_en.get("citationListName");
-		else if (locale.equals("es"))
+		else if (locale.equals("es_ES"))
 			citationListName = rubricMap_es.get("citationListName");
 		else
 			citationListName = rubricMap_fr.get("citationListName");
