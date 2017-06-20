@@ -13,6 +13,6 @@
 
 	<bean id="ca.hec.commons.providers.OfficialCourseDescriptionProvider"
 		  class="ca.hec.commons.providers.OfficialCourseDescriptionProvider">
-
+		<property name="courseOfferingDao" ref="ca.hec.cdm.jobs.CatalogDescriptionJobDao" />
 	</bean>
 </beans>

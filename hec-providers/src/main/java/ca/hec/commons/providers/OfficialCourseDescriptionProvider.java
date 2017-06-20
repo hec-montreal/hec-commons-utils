@@ -20,27 +20,30 @@
  ******************************************************************************/
 package ca.hec.commons.providers;
 
-//import ca.hec.cdm.jobs.model.CourseOffering;
+import ca.hec.cdm.jobs.model.CourseOffering;
 import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
 import ca.hec.tenjin.api.provider.ExternalDataProvider;
-//import ca.hec.cdm.jobs.CatalogDescriptionJobDao;
+import ca.hec.cdm.jobs.CatalogDescriptionJobDao;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
 public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
 
-//    CatalogDescriptionJobDao cdmDao;
+    @Setter
+    CatalogDescriptionJobDao courseOfferingDao;
 
     @Override
     public AbstractSyllabusElement getAbstractSyllabusElement() {
 
         SyllabusRubricElement descriptionRubric = new SyllabusRubricElement();
-        descriptionRubric.setTitle("Description"); //TODO i18n
+        descriptionRubric.setTitle("Description");
 
         SyllabusTextElement descriptionText = new SyllabusTextElement();
-        descriptionText.setDescription(getOfficialDescriptionString("1-620-15")); // TODO get the text from the db
+        descriptionText.setDescription(getOfficialDescriptionString("162015"));
         descriptionText.setTemplateStructureId(-1L);
         descriptionText.setCommon(true);
         descriptionText.setPublicElement(true);
@@ -55,10 +58,9 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
     }
 
     private String getOfficialDescriptionString(String catalogNbr) {
-        //CourseOffering co = cdmDao.getCourseOffering(catalogNbr);
+        CourseOffering co = courseOfferingDao.getCourseOffering(catalogNbr);
 
-        //return co.getShortDescription();
-        return "Official description";
+        return co.getShortDescription() + "</br>" + co.getLongDescription() + "</br>Thèmes</br>" + co.getThemes();
     }
 }
 
