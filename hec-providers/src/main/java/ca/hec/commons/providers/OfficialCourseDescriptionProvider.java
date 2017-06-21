@@ -27,7 +27,6 @@ import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
 import ca.hec.tenjin.api.provider.ExternalDataProvider;
 import ca.hec.cdm.jobs.CatalogDescriptionJobDao;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
@@ -37,13 +36,19 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
     CatalogDescriptionJobDao courseOfferingDao;
 
     @Override
-    public AbstractSyllabusElement getAbstractSyllabusElement() {
+    public AbstractSyllabusElement getAbstractSyllabusElement(String siteId) {
 
         SyllabusRubricElement descriptionRubric = new SyllabusRubricElement();
         descriptionRubric.setTitle("Description");
 
+        String catalogNbr = siteId.substring(0, siteId.indexOf('.')).replace("-", "");
+        String description = getOfficialDescriptionString(catalogNbr);
+
+        if (description == null)
+            return null;
+
         SyllabusTextElement descriptionText = new SyllabusTextElement();
-        descriptionText.setDescription(getOfficialDescriptionString("162015"));
+        descriptionText.setDescription(description);
         descriptionText.setTemplateStructureId(-1L);
         descriptionText.setCommon(true);
         descriptionText.setPublicElement(true);
@@ -58,9 +63,18 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
     }
 
     private String getOfficialDescriptionString(String catalogNbr) {
+        String officialDescription;
         CourseOffering co = courseOfferingDao.getCourseOffering(catalogNbr);
+        if (co == null)
+            return null;
 
-        return co.getShortDescription() + "</br>" + co.getLongDescription() + "</br>Thèmes</br>" + co.getThemes();
+        officialDescription = "<p>"+co.getShortDescription()+"</p>";
+        officialDescription += "<p>"+co.getLongDescription()+"</p>";
+        if (co.getThemes() != null) {
+            officialDescription += "<h3>Thèmes</h3>";
+            officialDescription += "<p>" + co.getThemes().replace("\n", "</br>") + "</p>";
+        }
+        return officialDescription;
     }
 }
 

@@ -351,7 +351,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		if (templateRules == null) // TODO:  should this be an exception?
 			return null;
 		
-		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, lang);
+		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, siteId, lang);
 		
 		// keep track of already copied resources
 		Map<String, String> copiedResources = new HashMap<String, String>();

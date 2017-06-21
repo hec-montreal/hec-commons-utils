@@ -74,7 +74,7 @@ public class PlagiarismPolicyProvider implements ExternalDataProvider {
     @Override
     //TODO: Check if I handle departments
     //TODO: Do I save value at creation with template
-    public AbstractSyllabusElement getAbstractSyllabusElement() {
+    public AbstractSyllabusElement getAbstractSyllabusElement(String siteId) {
 	SyllabusTextElement textElement = new SyllabusTextElement();
 	
 	textElement.setDescription(getPolicyContent());
