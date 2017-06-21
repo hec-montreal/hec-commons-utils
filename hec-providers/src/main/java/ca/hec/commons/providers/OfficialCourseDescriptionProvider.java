@@ -63,17 +63,18 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
     }
 
     private String getOfficialDescriptionString(String catalogNbr) {
-        String officialDescription;
+        String officialDescription = "";
         CourseOffering co = courseOfferingDao.getCourseOffering(catalogNbr);
         if (co == null)
             return null;
 
-        officialDescription = "<p>"+co.getShortDescription()+"</p>";
-        officialDescription += "<p>"+co.getLongDescription()+"</p>";
-        if (co.getThemes() != null) {
-            officialDescription += "<h3>Thèmes</h3>";
-            officialDescription += "<p>" + co.getThemes().replace("\n", "</br>") + "</p>";
-        }
+        if (co.getShortDescription() != null)
+            officialDescription += "<p>"+co.getShortDescription()+"</p>";
+        if (co.getLongDescription() != null)
+            officialDescription += "<p>"+co.getLongDescription()+"</p>";
+        if (co.getThemes() != null)
+            officialDescription += "<h3>Thèmes</h3><p>" + co.getThemes().replace("\n", "</br>") + "</p>";
+
         return officialDescription;
     }
 }
