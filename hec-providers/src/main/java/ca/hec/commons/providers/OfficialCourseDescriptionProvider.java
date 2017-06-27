@@ -42,7 +42,7 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
         descriptionRubric.setTitle("Description");
 
         String description = null;
-        if (catalogNbr.contains(".")) {
+        if (siteId.contains(".")) {
             String catalogNbr = siteId.substring(0, siteId.indexOf('.')).replace("-", "");
             description = getOfficialDescriptionString(catalogNbr);
         }
