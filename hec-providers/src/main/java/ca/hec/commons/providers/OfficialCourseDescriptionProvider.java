@@ -41,11 +41,15 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
         SyllabusRubricElement descriptionRubric = new SyllabusRubricElement();
         descriptionRubric.setTitle("Description");
 
-        String catalogNbr = siteId.substring(0, siteId.indexOf('.')).replace("-", "");
-        String description = getOfficialDescriptionString(catalogNbr);
+        String description = null;
+        if (catalogNbr.contains(".")) {
+            String catalogNbr = siteId.substring(0, siteId.indexOf('.')).replace("-", "");
+            description = getOfficialDescriptionString(catalogNbr);
+        }
 
-        if (description == null)
+        if (description == null) {
             return null;
+        }
 
         SyllabusTextElement descriptionText = new SyllabusTextElement();
         descriptionText.setDescription(description);
