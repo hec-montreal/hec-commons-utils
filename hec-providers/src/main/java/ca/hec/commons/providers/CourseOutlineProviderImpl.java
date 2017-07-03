@@ -351,7 +351,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		if (templateRules == null) // TODO:  should this be an exception?
 			return null;
 		
-		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, lang);
+		Syllabus syllabus = templateService.getEmptySyllabusFromTemplate(1L, destinationSiteId, lang);
 		
 		// keep track of already copied resources
 		Map<String, String> copiedResources = new HashMap<String, String>();
@@ -430,10 +430,14 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			boolean added = false;
 			for (AbstractSyllabusElement r : elem.getElements()) {
 				if (r.isComposite() && r.getTitle().equals(rubricTitle)) {
-					
+
 					SyllabusCompositeElement parentRubric = (SyllabusCompositeElement)r;
-					tenjinElement.setTemplateStructureId(getTemplateStructureIdForElement(parentRubric, tenjinElement, templateRules));
-					parentRubric.getElements().add(tenjinElement);
+					Long rubricTemplateStructureId = getTemplateStructureIdForElement(parentRubric, tenjinElement, templateRules);
+					// template structure id could be null if template does not allow that element type
+					if (rubricTemplateStructureId != null) {
+						tenjinElement.setTemplateStructureId(rubricTemplateStructureId);
+						parentRubric.getElements().add(tenjinElement);
+					}
 					added = true;
 				}
 			}
