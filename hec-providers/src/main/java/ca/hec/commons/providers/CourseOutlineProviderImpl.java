@@ -464,11 +464,18 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 				newRubric.setCreatedDate(new Date());
 				
 				// Get template structure ids for new rubric and element
-				newRubric.setTemplateStructureId(getTemplateStructureIdForElement(elem, newRubric, templateRules));
-				tenjinElement.setTemplateStructureId(getTemplateStructureIdForElement(newRubric, tenjinElement, templateRules));
+				Long newRubricTemplateStructureId = getTemplateStructureIdForElement(elem, newRubric, templateRules);
+				Long newElementTemplateStructureId = getTemplateStructureIdForElement(newRubric, tenjinElement, templateRules);
 
-				newRubric.getElements().add(tenjinElement);
-				addRubricInCorrectPosition(elem, newRubric, templateRules);
+				if (newRubricTemplateStructureId != null &&
+						newElementTemplateStructureId != null) {
+
+					newRubric.setTemplateStructureId(newRubricTemplateStructureId);
+					tenjinElement.setTemplateStructureId(newElementTemplateStructureId);
+
+					newRubric.getElements().add(tenjinElement);
+					addRubricInCorrectPosition(elem, newRubric, templateRules);
+				}
 			}
 			
 
