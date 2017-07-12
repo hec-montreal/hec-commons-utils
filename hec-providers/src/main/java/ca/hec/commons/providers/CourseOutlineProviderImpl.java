@@ -454,8 +454,8 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 				// we are generating a common syllabus
 				newRubric.setCommon(true);
 				
-				// elements are not public by default
-				newRubric.setPublicElement(false);
+				// rubrics are public by default
+				newRubric.setPublicElement(true);
 				
 				// composite elements cannot be hidden or important
 				newRubric.setHidden(false);
