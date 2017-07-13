@@ -652,8 +652,12 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			// we are generating a common syllabus
 			ret.setCommon(true);
 			
-			// composite elements are public by default
-			ret.setPublicElement(true);
+			// conserve access attribute
+			if (element.getAccess().equals("public")) {
+				ret.setPublicElement(true);
+			} else {
+				ret.setPublicElement(false);
+			}
 			
 			// composite elements cannot be hidden or important
 			ret.setHidden(false);
