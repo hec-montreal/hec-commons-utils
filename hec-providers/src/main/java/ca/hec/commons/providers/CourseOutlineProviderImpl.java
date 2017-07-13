@@ -824,7 +824,11 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			ret.setCommon(true);
 
 			// elements are not public by default
-			ret.setPublicElement(false);
+			if (resource.getAccess().equals("public")) {
+				ret.setPublicElement(true);
+			} else {
+				ret.setPublicElement(false);
+			}
 
 			// set hidden
 			String visible = element.getProperty("visible"); 
