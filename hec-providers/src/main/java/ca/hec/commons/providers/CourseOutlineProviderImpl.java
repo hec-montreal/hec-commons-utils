@@ -634,8 +634,20 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			
 		} else if (element.getType().equals("Lecture")) {			
 			ret = new SyllabusLectureElement();
+
+			if (element.getProperties().containsKey("prefix")) {
+				HashMap<String, String> attributes = new HashMap<String, String>();
+				attributes.put("numero", element.getProperty("prefix"));
+				ret.setAttributes(attributes);
+			}
 		} else if (element.getType().equals("WorkSession")) {
 			ret = new SyllabusTutorialElement();
+
+			if (element.getProperties().containsKey("prefix")) {
+				HashMap<String, String> attributes = new HashMap<String, String>();
+				attributes.put("numero", element.getProperty("prefix"));
+				ret.setAttributes(attributes);
+			}
 		} else if (element.getType().equals("PedagogicalStruct")) {
 			ret = new SyllabusCompositeElement();
 
