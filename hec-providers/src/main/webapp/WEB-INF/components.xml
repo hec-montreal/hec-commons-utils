@@ -15,4 +15,8 @@
 		  class="ca.hec.commons.providers.OfficialCourseDescriptionProvider">
 		<property name="courseOfferingDao" ref="ca.hec.cdm.jobs.CatalogDescriptionJobDao" />
 	</bean>
+
+	<bean id="ca.hec.commons.providers.PlagiarismPolicyProvider"
+		  class="ca.hec.commons.providers.PlagiarismPolicyProvider">
+	</bean>
 </beans>
