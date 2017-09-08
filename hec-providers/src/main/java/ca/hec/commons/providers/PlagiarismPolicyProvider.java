@@ -50,8 +50,8 @@ public class PlagiarismPolicyProvider implements ExternalDataProvider {
     @Override
     public AbstractSyllabusElement getAbstractSyllabusElement(String siteId, String locale) {
 		String bundlePath = CONFIGURATION_FILE;
-		if (locale != null && locale.equals("")) {
-			bundlePath = bundlePath.replace(".properties", locale+".properties");
+		if (locale != null) {
+			bundlePath = bundlePath.replace(".properties", "_"+locale+".properties");
 		}
 		ResourceBundle bundle = getBundle(bundlePath);
 
@@ -61,6 +61,11 @@ public class PlagiarismPolicyProvider implements ExternalDataProvider {
 
 			textElement.setDescription(bundle.getString("plagiarismPolicy"));
 			textElement.setTitle(bundle.getString("plagiarismPolicyTitle"));
+			textElement.setTemplateStructureId(-1L);
+			textElement.setCommon(true);
+			textElement.setPublicElement(true);
+			textElement.setHidden(false);
+			textElement.setImportant(false);
 
 			rubric = new SyllabusRubricElement();
 			rubric.setTitle(bundle.getString("plagiarismRubricTitle"));
@@ -73,7 +78,7 @@ public class PlagiarismPolicyProvider implements ExternalDataProvider {
 
     private ResourceBundle getBundle(String path) {
 		try {
-			ContentResource resource = ContentHostingService.getResource(CONFIGURATION_FILE);
+			ContentResource resource = ContentHostingService.getResource(path);
 			return new PropertyResourceBundle(resource.streamContent());
 		} catch (PermissionException e) {
 			e.printStackTrace();
