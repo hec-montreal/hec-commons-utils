@@ -36,7 +36,7 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
     CatalogDescriptionJobDao courseOfferingDao;
 
     @Override
-    public AbstractSyllabusElement getAbstractSyllabusElement(String siteId) {
+    public AbstractSyllabusElement getAbstractSyllabusElement(String siteId, String locale) {
 
         SyllabusRubricElement descriptionRubric = new SyllabusRubricElement();
         descriptionRubric.setTitle("Description");

@@ -21,9 +21,12 @@
 package ca.hec.commons.providers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
+import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -42,46 +45,49 @@ import ca.hec.tenjin.api.provider.ExternalDataProvider;
  */
 public class PlagiarismPolicyProvider implements ExternalDataProvider {
 
-    //TODO: break variables to refer to folder and file if possible I18N
-    //TODO: make sure it does not have problems with access permissions
-    //TODO: put a securityAdvisor to access to content
-    //mysql     public final String CONFIGURATION_File = "/group/8ed156b7-8043-48ce-85ea-6a000347a917/providers/plagiarismPolicy/plagiarismPolicy.properties";
-    // Oracle
-    public final String CONFIGURATION_File = "/group/tenjin/plagiarismProvider/plagiarismPolicy.properties";
-    private ResourceBundle bundle ;
-    private String getPolicyContent(){
-   	String content = null;
-   	
-   	try {
-   	    ContentResource resource = ContentHostingService.getResource(CONFIGURATION_File);
-   	    bundle = new PropertyResourceBundle(resource.streamContent());
-   	    content = bundle.getString("plagiarismPolicy");
-   	    
-   	} catch (PermissionException e) {
-   	    e.printStackTrace();
-   	} catch (IdUnusedException e) {
-   	    e.printStackTrace();
-   	} catch (TypeException e) {
-   	    e.printStackTrace();
-   	} catch (ServerOverloadException e) {
-   	    e.printStackTrace();
-   	} catch (IOException e) {
-   	    e.printStackTrace();
-   	}
-   	return content;
-   	
-       }
+    private static final String CONFIGURATION_FILE = "/group/tenjin/plagiarismProvider/plagiarismPolicy.properties";
+
     @Override
-    //TODO: Check if I handle departments
-    //TODO: Do I save value at creation with template
-    public AbstractSyllabusElement getAbstractSyllabusElement(String siteId) {
-	SyllabusTextElement textElement = new SyllabusTextElement();
-	
-	textElement.setDescription(getPolicyContent());
-	textElement.setTitle(bundle.getString("plagiarismPolicyTitle"));
-	
-	return textElement;
+    public AbstractSyllabusElement getAbstractSyllabusElement(String siteId, String locale) {
+		String bundlePath = CONFIGURATION_FILE;
+		if (locale != null && locale.equals("")) {
+			bundlePath = bundlePath.replace(".properties", locale+".properties");
+		}
+		ResourceBundle bundle = getBundle(bundlePath);
+
+		SyllabusRubricElement rubric = null;
+		if (bundle != null) {
+			SyllabusTextElement textElement = new SyllabusTextElement();
+
+			textElement.setDescription(bundle.getString("plagiarismPolicy"));
+			textElement.setTitle(bundle.getString("plagiarismPolicyTitle"));
+
+			rubric = new SyllabusRubricElement();
+			rubric.setTitle(bundle.getString("plagiarismRubricTitle"));
+			List<AbstractSyllabusElement> children = new ArrayList<AbstractSyllabusElement>();
+			children.add(textElement);
+			rubric.setElements(children);
+		}
+		return rubric;
     }
+
+    private ResourceBundle getBundle(String path) {
+		try {
+			ContentResource resource = ContentHostingService.getResource(CONFIGURATION_FILE);
+			return new PropertyResourceBundle(resource.streamContent());
+		} catch (PermissionException e) {
+			e.printStackTrace();
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+		} catch (TypeException e) {
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }
 
