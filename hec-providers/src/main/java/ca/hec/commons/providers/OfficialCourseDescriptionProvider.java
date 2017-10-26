@@ -20,12 +20,12 @@
  ******************************************************************************/
 package ca.hec.commons.providers;
 
-import ca.hec.cdm.jobs.model.CourseOffering;
+import ca.hec.portal.api.OfficialCourseDescriptionDao;
+import ca.hec.portal.model.OfficialCourseDescription;
 import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
 import ca.hec.tenjin.api.provider.ExternalDataProvider;
-import ca.hec.cdm.jobs.CatalogDescriptionJobDao;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
 
     @Setter
-    CatalogDescriptionJobDao courseOfferingDao;
+    OfficialCourseDescriptionDao officialCourseDescriptionDao;
 
     @Override
     public AbstractSyllabusElement getAbstractSyllabusElement(String siteId, String locale) {
@@ -68,14 +68,14 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
 
     private String getOfficialDescriptionString(String catalogNbr) {
         String officialDescription = "";
-        CourseOffering co = courseOfferingDao.getCourseOffering(catalogNbr);
+        OfficialCourseDescription co = officialCourseDescriptionDao.getOfficialCourseDescription(catalogNbr);
         if (co == null)
             return null;
 
         if (co.getShortDescription() != null)
             officialDescription += "<p>"+co.getShortDescription()+"</p>";
-        if (co.getLongDescription() != null)
-            officialDescription += "<p>"+co.getLongDescription()+"</p>";
+        if (co.getDescription() != null)
+            officialDescription += "<p>"+co.getDescription()+"</p>";
         if (co.getThemes() != null)
             officialDescription += "<h3>Thèmes</h3><p>" + co.getThemes().replace("\n", "</br>") + "</p>";
 
