@@ -658,7 +658,13 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		}
 
 		if (ret != null) {
-			ret.setTitle(element.getLabel());
+			String oldTitle = element.getLabel();
+			if (oldTitle.length() <= 255) {
+				ret.setTitle(element.getLabel());
+			} else {
+				ret.setTitle(element.getLabel().substring(0, 254));
+			}
+
 			ret.setElements(new ArrayList<AbstractSyllabusElement>());
 
 			// we are generating a common syllabus
@@ -866,6 +872,21 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			}
 
 			ret.setCreatedDate(new Date());
+
+			// truncate long titles, keep original in description
+			String oldTitle = ret.getTitle();
+			if (oldTitle != null) {
+				if (oldTitle.length() <= 255) {
+					ret.setTitle(element.getLabel());
+				} else {
+					ret.setTitle(element.getLabel().substring(0, 254));
+					if (ret.getDescription() != null && !ret.getDescription().isEmpty()) {
+						ret.setDescription(ret.getDescription() + "</br></br>" + element.getLabel());
+					} else {
+						ret.setDescription(element.getLabel());
+					}
+				}
+			}
 
 			log.debug(ret.toString());
 		}
