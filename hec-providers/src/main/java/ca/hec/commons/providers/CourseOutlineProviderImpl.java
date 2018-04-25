@@ -373,7 +373,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			}
 
 			if (copyTo != null)
-				recursiveCopyToTenjinSyllabus(copyTo, e, lang, templateRules, destinationSiteId, destinationCitationList, copiedResources);			
+				recursiveCopyToTenjinSyllabus(copyTo, e, lang, templateRules, siteId, destinationSiteId, destinationCitationList, copiedResources);
 		}
 	
 		// set title
@@ -390,7 +390,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		
 	}
 	
-	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang, HashMap<String, HashMap<String, Object>> templateRules, String destinationSiteId, CitationCollection destinationCitationList, Map<String, String> copiedResources) {
+	private void recursiveCopyToTenjinSyllabus(SyllabusCompositeElement elem, COModelInterface comi, String lang, HashMap<String, HashMap<String, Object>> templateRules, String originSiteId, String destinationSiteId, CitationCollection destinationCitationList, Map<String, String> copiedResources) {
 		SyllabusCompositeElement compositeElement = null;
 		
 		if (comi instanceof COContentResourceProxy) {
@@ -422,7 +422,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 				rubricTitle = rubricMap_es.getOrDefault(rubricKey, rubricKey);				
 			}
 			
-			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp, destinationSiteId, copiedResources, lang);
+			AbstractSyllabusElement tenjinElement = convertToTenjinElement(cocrp, originSiteId, destinationSiteId, copiedResources, lang);
 			if (tenjinElement == null)
 				return;
 			
@@ -504,9 +504,9 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			for (Object child : abstractElement.getChildrens()) {
 				
 				if (compositeElement != null) {
-					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang, templateRules, destinationSiteId, destinationCitationList, copiedResources);
+					recursiveCopyToTenjinSyllabus(compositeElement, (COModelInterface)child, lang, templateRules, originSiteId, destinationSiteId, destinationCitationList, copiedResources);
 				} else {
-					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang, templateRules, destinationSiteId, destinationCitationList, copiedResources);
+					recursiveCopyToTenjinSyllabus(elem, (COModelInterface)child, lang, templateRules, originSiteId, destinationSiteId, destinationCitationList, copiedResources);
 				}
 			}
 		}
@@ -690,7 +690,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 	}
 	
 	private AbstractSyllabusElement convertToTenjinElement(COContentResourceProxy element, 
-			String destinationSiteId, Map<String, String> copiedResources, String locale) {
+			String originSiteId, String destinationSiteId, Map<String, String> copiedResources, String locale) {
 		
 		AbstractSyllabusElement ret = null;
 		
@@ -738,7 +738,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 			String newUri = null;
 			if(!copiedResources.containsKey(uri)) {
 				try {
-					newUri = copyResource(uri, destinationSiteId);
+					newUri = copyResource(uri, originSiteId, destinationSiteId);
 					copiedResources.put(uri, newUri);
 				} catch (PermissionException | IdUnusedException | TypeException | InUseException | OverQuotaException
 						| IdUsedException | ServerOverloadException | InconsistentException | IdLengthException
@@ -893,9 +893,9 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		return ret;
 	}
 
-	private String copyResource(String uri, String newSiteId) throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException {
+	private String copyResource(String uri, String oldSiteId, String newSiteId) throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException {
 
-		String newSiteCollectionId = contentService.getSiteCollection(newSiteId);
+		String newSiteCollectionId = uri.replace(oldSiteId, newSiteId).substring(0, uri.lastIndexOf('/')+1);
 		String newId = contentService.copyIntoFolder(uri, newSiteCollectionId);
 		return newId;
 	}	
