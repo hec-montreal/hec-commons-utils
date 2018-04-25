@@ -285,8 +285,8 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
         gMap.put("Professeur(e) affilié(e)", "CONTACT_TITLE_AFFILIATEDPROFESSOR");
         gMap.put("Professeur(e) adjoint(e)", "CONTACT_TITLE_ASSISTANTPROFESSOR");
         gMap.put("Professeur(e) agrégé(e)", "CONTACT_TITLE_ASSOCIATEPROFESSOR");
-        gMap.put("Maître d'enseignement", "CONTACT_TITLE_FULLTIMEFACULTYLECTURER");
-        gMap.put("Attaché(e) d'enseignement", "CONTACT_TITLE_FULLTIMELECTURER");
+        gMap.put("Maître d'enseignement", "CONTACT_TITLE_FULLTIMELECTURER");
+        gMap.put("Attaché(e) d'enseignement", "CONTACT_TITLE_FULLTIMEFACULTYLECTURER");
         gMap.put("Professeur(e) invité(e)", "CONTACT_TITLE_GUESTPROFESSOR");
         gMap.put("Professeur(e) honoraire", "CONTACT_TITLE_HONORARYPROFESSOR");
         gMap.put("Chargé(e) de cours", "CONTACT_TITLE_PARTTIMEFACULTYLECTURER");
