@@ -895,10 +895,21 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 
 	private String copyResource(String uri, String oldSiteId, String newSiteId) throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException {
 
-		String newSiteCollectionId = uri.replace(oldSiteId, newSiteId).substring(0, uri.lastIndexOf('/')+1);
+		String newSiteCollectionId = null;
+
+		if (uri.startsWith("/attachment")) {
+			newSiteCollectionId = contentService.getSiteCollection(newSiteId);
+			newSiteCollectionId = newSiteCollectionId+"Importé du partageable";
+		}
+		else {
+			//preserve folders unless it comes from parent syllabus
+			newSiteCollectionId = uri.replace(oldSiteId, newSiteId);
+			newSiteCollectionId = newSiteCollectionId.substring(0, newSiteCollectionId.lastIndexOf('/')+1);
+		}
+
 		String newId = contentService.copyIntoFolder(uri, newSiteCollectionId);
 		return newId;
-	}	
+	}
 
 	private String copyCitation(String citationId, String newSiteId, String locale) 
 			throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException, IdInvalidException {
