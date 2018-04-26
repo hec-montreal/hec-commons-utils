@@ -898,8 +898,13 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		String newSiteCollectionId = null;
 
 		if (uri.startsWith("/attachment")) {
-			newSiteCollectionId = contentService.getSiteCollection(newSiteId);
-			newSiteCollectionId = newSiteCollectionId+"Importé du partageable";
+			String folders = "";
+			if (uri.contains("OpenSyllabus/")) {
+				folders = uri.substring(uri.indexOf("OpenSyllabus/")+13, uri.length());
+				folders = folders.substring(0, folders.lastIndexOf('/')+1);
+			}
+
+			newSiteCollectionId = contentService.getSiteCollection(newSiteId)+folders;
 		}
 		else {
 			//preserve folders unless it comes from parent syllabus
