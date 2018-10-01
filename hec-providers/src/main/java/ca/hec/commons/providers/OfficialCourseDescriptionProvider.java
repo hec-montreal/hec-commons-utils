@@ -76,8 +76,11 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
             officialDescription += "<p>"+co.getShortDescription()+"</p>";
         if (co.getDescription() != null)
             officialDescription += "<p>"+co.getDescription()+"</p>";
-        if (co.getThemes() != null)
-            officialDescription += "<h3>Thèmes</h3><p>" + co.getThemes().replace("\n", "</br>") + "</p>";
+        if (co.getThemes() != null) {
+            String themesTitle =
+                    catalogNbr.endsWith("A") ? "Themes" : catalogNbr.endsWith("E") ? "Temas" : "Thèmes";
+            officialDescription += "<h3>" + themesTitle + "</h3><p>" + co.getThemes().replace("\n", "</br>") + "</p>";
+        }
 
         return officialDescription;
     }
