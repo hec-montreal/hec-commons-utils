@@ -44,7 +44,7 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
         String description = null;
         if (siteId.contains(".")) {
             String catalogNbr = siteId.substring(0, siteId.indexOf('.')).replace("-", "");
-            description = getOfficialDescriptionString(catalogNbr);
+            description = getOfficialDescriptionString(catalogNbr, locale);
         }
 
         if (description == null) {
@@ -66,7 +66,7 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
 	    return descriptionRubric;
     }
 
-    private String getOfficialDescriptionString(String catalogNbr) {
+    private String getOfficialDescriptionString(String catalogNbr, String locale) {
         String officialDescription = "";
         OfficialCourseDescription co = officialCourseDescriptionDao.getOfficialCourseDescription(catalogNbr);
         if (co == null)
@@ -78,7 +78,7 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
             officialDescription += "<p>"+co.getDescription()+"</p>";
         if (co.getThemes() != null) {
             String themesTitle =
-                    catalogNbr.endsWith("A") ? "Themes" : catalogNbr.endsWith("E") ? "Temas" : "Thèmes";
+                    locale.equals("en_US") ? "Themes" : locale.equals("es_ES") ? "Temas" : "Thèmes";
             officialDescription += "<h3>" + themesTitle + "</h3><p>" + co.getThemes().replace("\n", "</br>") + "</p>";
         }
 
