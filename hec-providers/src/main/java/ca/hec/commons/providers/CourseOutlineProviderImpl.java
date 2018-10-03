@@ -382,7 +382,7 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		else if (lang.equals("en_US"))
 			syllabus.setTitle("Common");
 		else if (lang.equals("es_ES"))
-			syllabus.setTitle("Comùn");
+			syllabus.setTitle("Común");
 		
 		syllabus.setCommon(true);
 		
