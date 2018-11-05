@@ -39,5 +39,6 @@
 	<modules>
     	<module>hec-utils</module>
     	<module>hec-providers</module>
+	<module>hec-commons-pack</module>
 	</modules>
 </project>
