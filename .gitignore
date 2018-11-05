@@ -1,2 +1,9 @@
 *.iml
 target
+.idea
+.project
+.settings
+.classpath
+*.sublime-workspace
+velocity.log
+build
