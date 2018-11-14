@@ -33,10 +33,14 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 
 import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
+import ca.hec.tenjin.api.model.template.Template;
 import ca.hec.tenjin.api.provider.ExternalDataProvider;
+import lombok.Setter;
 
 /**
  *
@@ -46,6 +50,16 @@ import ca.hec.tenjin.api.provider.ExternalDataProvider;
 public class PlagiarismPolicyProvider implements ExternalDataProvider {
 
     private static final String CONFIGURATION_FILE = "/group/tenjin/plagiarismProvider/plagiarismPolicy.properties";
+    
+    private static String CACHE_NAME = "ca.hec.commons.providers.PlagiarismPolicyProvider";
+    private Cache<String, ResourceBundle> cache;
+
+	@Setter
+	private MemoryService memoryService;
+
+	public void init() {
+		cache = memoryService.newCache(CACHE_NAME);
+	}
 
     @Override
     public AbstractSyllabusElement getAbstractSyllabusElement(String siteId, String locale) {
@@ -77,21 +91,30 @@ public class PlagiarismPolicyProvider implements ExternalDataProvider {
     }
 
     private ResourceBundle getBundle(String path) {
-		try {
-			ContentResource resource = ContentHostingService.getResource(path);
-			return new PropertyResourceBundle(resource.streamContent());
-		} catch (PermissionException e) {
-			e.printStackTrace();
-		} catch (IdUnusedException e) {
-			e.printStackTrace();
-		} catch (TypeException e) {
-			e.printStackTrace();
-		} catch (ServerOverloadException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+    	ResourceBundle rb = null;
+    	
+    	if (cache != null && cache.containsKey(path)) {
+			rb = cache.get(path);
 		}
-		return null;
+    	
+    	if (rb == null) {
+    		try {
+    			ContentResource resource = ContentHostingService.getResource(path);
+    			rb = new PropertyResourceBundle(resource.streamContent());
+    			cache.put(path, rb);
+    		} catch (PermissionException e) {
+    			e.printStackTrace();
+    		} catch (IdUnusedException e) {
+    			e.printStackTrace();
+    		} catch (TypeException e) {
+    			e.printStackTrace();
+    		} catch (ServerOverloadException e) {
+    			e.printStackTrace();
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    	}
+		return rb;
 	}
 
 }
