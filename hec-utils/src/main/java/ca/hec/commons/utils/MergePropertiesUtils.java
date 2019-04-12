@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -41,30 +43,20 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Utility to merge properties during a sakai migration. Example:
  * 
- * > mergePropertiesHec pathNewPropertiesFile pathUpdatedValuesOldPropertiesFile
- * pathOriginalValuesOldPropertiesFile
- * 
- * For migration from Sakai 2.8.1 to Sakai 2.9.1, the path would be:
- * 
- * - pathNewPropertiesFile : path to SAKAI 2.9.1 properties file -
- * pathUpdatedValuesOldPropertiesFile : path to SAKAI 2.8.1 MODIF properties
- * file - pathOriginalValuesOldPropertiesFile : path to SAKAI 2.8.1 properties
- * file
- * 
+ * >java -cp hec-commons-utils/hec-utils/target/hec-utils-with-dependencies.jar newPropertiesFile oldPropertiesFile
  * 
  * The algorithm is :
  * 
  * - Properties in 'new' properties file are updated with value of the
- * 'UpdatedValuesOld' properties file - Properties that are present in
- * 'UpdatedValuesOld' properties file but not in the other files are added at
- * the end of the 'new' file: they are some personalizations we made during
- * Sakai 2.8.1
+ *   old fr_CA properties file.  Output file will have the same order as 
+ *   the original for easy diff
+ * - Properties that are missing from either of the files are written to 
+ *   a separate file with the same name followed by ".missing"
  * 
- * The utility will send output to stdout, which you can copy and save in a
- * properties file.
+ * The utility will create a file alongside the original english properties file
+ * with fr_CA added to the name.
  *
- *
- * NOte: Currently, the continuation lines (lines ending with \) in 'new' are
+ * Note: Currently, the continuation lines (lines ending with \) in 'new' are
  * appended into a single line.
  */
 public class MergePropertiesUtils {
@@ -77,22 +69,12 @@ public class MergePropertiesUtils {
 		File newPropertiesFile = new File(pathNewPropertiesFile);
 		File originalValuesOldPropertiesFilesPath = new File(pathOriginalValuesOldPropertiesFile);
 
-		// Properties newProps = load(newPropertiesFile);
 		Properties originalProps = load(originalValuesOldPropertiesFilesPath);
-
-		// importNewProps(enProps, newProps);
 
 		/**
 		 * Output new file with french values from old version
 		 */
 		merge(newPropertiesFile, originalProps);
-
-		/**
-		 * Output old properties (2.8.1 MODIF) that are not present in 2.8.1 or 2.9.1
-		 * (personalizations)
-		 */
-		// printNewProps(updatedValuesOldPropertiesFile, newProps, originalProps);
-
 	}
 
 	/**
@@ -107,13 +89,12 @@ public class MergePropertiesUtils {
 	 */
 	public static void merge(File newPropertiesFile, Properties updatedProps) throws Exception {
 		/**
-		 * 1) Read line by line of the new PropertiesFile (Sakai 2.9.1) For each line:
-		 * extract property check if we have a match one in the propToMerge - if no,
-		 * then rewrite the same line - if yes: - if same value, rewrite the same line -
-		 * if different value, rewrite the prop with the new value - For both cases,
-		 * delete the key from newProperties.
+		 * 1) Read line by line of the new PropertiesFile For each line:
+		 * extract property check if we have a match one in the old file 
+		 * - if no, then rewrite the same line as a comment 
+		 * - if yes: rewrite the prop with the new value
 		 * 
-		 * 2) At the end, write the remaining list of propToMerge at the end of mainProp
+		 * 2) At the end, write the properties that were not in one or the other
 		 */
 
 		try {
@@ -122,6 +103,8 @@ public class MergePropertiesUtils {
 
 			List<String> outputLines = new ArrayList<String>();
 			List<String> missingOutputLines = new ArrayList<String>();
+
+			missingOutputLines.addAll(Arrays.asList(new String[]{"Missing fr_CA translations", ""}));
 
 			// Open the file that is the first
 			// command line parameter
@@ -153,8 +136,11 @@ public class MergePropertiesUtils {
 					outputLines.add("#" + lineIn.getFullLine());
 					missingOutputLines.add(lineIn.getFullLine());
 				} else {
-					outputLines.add(composeNewPropLine(key, newValue));
+					// escape java to tranform accented characters
+					outputLines.add(composeNewPropLine(key, StringEscapeUtils.escapeJava(newValue)));
 				}
+				// remove so we can track missing properties from the new file
+				updatedProps.remove(key);
 			}
 			// Close the input stream
 			in.close();
@@ -163,11 +149,18 @@ public class MergePropertiesUtils {
 			Path outfile = Paths.get(destinationPath + destinationName);
 			Files.write(outfile, outputLines, Charset.forName("UTF-8"));
 
-			if (missingOutputLines.size() > 0) {
+			if (missingOutputLines.size() > 0 || !updatedProps.isEmpty()) {
+				missingOutputLines.addAll(Arrays.asList(new String[] {"", "Missing from new version, present in old fr_CA", ""}));
+				for (Object k : updatedProps.keySet()) {
+					String key = k.toString();
+					missingOutputLines.add(composeNewPropLine(key, StringEscapeUtils.escapeJava(updatedProps.getProperty(key))));
+				}
 				// write missing
 				Path missingOutfile = Paths.get(destinationPath + destinationName + ".missing");
 				Files.write(missingOutfile, missingOutputLines, Charset.forName("UTF-8"));
 			}
+		} catch (FileNotFoundException fnfe) {
+			System.out.println(newPropertiesFile + " not found");
 		} finally {
 		}
 	}
@@ -217,64 +210,6 @@ public class MergePropertiesUtils {
 
 		public String getFullLine() {
 			return fullLine;
-		}
-	}
-
-	/**
-	 * Print the newprops. Properties that are 'used' already are commented out.
-	 * 
-	 * NOTE: The idea is that we want to write out the properties in exactly the
-	 * same order, for future comparison purposes.
-	 * 
-	 * @param newProps
-	 * @param remainingNewProps New properties that are left, i.e. remaining ones.
-	 */
-
-	private static void printNewProps(File updatedValuesOldPropertiesFile, Properties newProps,
-			Properties originalProps) {
-		/**
-		 * Read new props line by line. For each line, extract the prop key if it is not
-		 * in the remaining, then it is used. So we write the line, but commented out
-		 * otherwise, write the line as is.
-		 */
-
-		System.out.println("#########################################################################################");
-		System.out.println("####################### Personalizations  from 2.9.1-source-modif #######################");
-
-		try {
-			// Open the file that contains Sakai 2.8.1 modif personalizations
-			FileInputStream fstream = new FileInputStream(updatedValuesOldPropertiesFile);
-			// Get the object of DataInputStream
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String strLine;
-
-			// Read File Line By Line
-			while ((strLine = br.readLine()) != null) {
-
-				KeyValue keyValue = extractKeyValue(strLine);
-
-				// if the line does not have the pattern key = value, we skip it
-				if (keyValue == null) {
-					continue;
-				}
-
-				String key = keyValue.key;
-
-				boolean isNotUsedInNewVersion = (newProps.get(key) == null);
-				boolean isNotUsedInOldVersion = (originalProps.get(key) == null);
-
-				// Write out line only if property is a personalized property:it is not used in
-				// new version and was not used in old version
-				if (isNotUsedInNewVersion && isNotUsedInOldVersion) {
-					System.out.println(strLine);
-				}
-			}
-			// Close the input stream
-			in.close();
-
-		} catch (Exception e) {// Catch exception if any
-			System.err.println("Error: " + e.getMessage());
 		}
 	}
 
@@ -338,10 +273,17 @@ public class MergePropertiesUtils {
 	 * @throws IOException
 	 */
 	public static Properties load(File propsFile) throws IOException {
-		Properties props = new Properties();
-		FileInputStream fis = new FileInputStream(propsFile);
-		props.load(fis);
-		fis.close();
-		return props;
+		try {
+			Properties props = new Properties();
+			FileInputStream fis = new FileInputStream(propsFile);
+			props.load(fis);
+			fis.close();
+			return props;
+		}
+		catch (FileNotFoundException e) {
+			System.out.println(propsFile.getAbsolutePath() + " not found");
+		}
+
+		return null; 
 	}
 }
