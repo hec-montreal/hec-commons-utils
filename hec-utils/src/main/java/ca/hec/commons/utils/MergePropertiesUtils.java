@@ -63,8 +63,8 @@ public class MergePropertiesUtils {
 
 	public static void main(String[] args) throws Exception {
 
-		String pathNewPropertiesFile = args[0]; // file path for new file
-		String pathOriginalValuesOldPropertiesFile = args[1]; // file path for old fr_CA file
+		String pathOriginalValuesOldPropertiesFile = args[0]; // file path for old fr_CA file
+		String pathNewPropertiesFile = args[1]; // file path for new file
 
 		File newPropertiesFile = new File(pathNewPropertiesFile);
 		File originalValuesOldPropertiesFilesPath = new File(pathOriginalValuesOldPropertiesFile);
