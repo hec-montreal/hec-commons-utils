@@ -2,22 +2,22 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="ca.hec.tenjin.api.provider.CourseOutlineProvider"
+	<!-- <bean id="ca.hec.tenjin.api.provider.CourseOutlineProvider"
 		class="ca.hec.commons.providers.CourseOutlineProviderImpl">
 		
 		<property name="osylSiteService" ref="org.sakaiquebec.opensyllabus.common.api.OsylSiteService" />
 		<property name="templateService" ref="ca.hec.tenjin.api.TemplateService" />
 		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="citationService" ref="org.sakaiproject.citation.api.CitationService"/>
-	</bean>
+	</bean> -->
 
-	<bean id="ca.hec.commons.providers.OfficialCourseDescriptionProvider"
+	<!-- <bean id="ca.hec.commons.providers.OfficialCourseDescriptionProvider"
 		  class="ca.hec.commons.providers.OfficialCourseDescriptionProvider">
 		<property name="officialCourseDescriptionDao" ref="ca.hec.portal.api.OfficialCourseDescriptionDao"/>
-	</bean>
+	</bean> -->
 
 	<bean id="ca.hec.commons.providers.PlagiarismPolicyProvider"
 		  class="ca.hec.commons.providers.PlagiarismPolicyProvider" init-method="init">
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<!-- <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/> -->
 	</bean>
 </beans>

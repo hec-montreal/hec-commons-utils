@@ -43,6 +43,10 @@ import lombok.Setter;
  */
 public class PlagiarismPolicyProvider /* implements ExternalDataProvider */ {
 
+	public void init() {
+		
+	}
+	
     /*private static final String CONFIGURATION_FILE = "/group/tenjin/plagiarismProvider/plagiarismPolicy.properties";
     
     private static String CACHE_NAME = "ca.hec.commons.providers.PlagiarismPolicyProvider";
