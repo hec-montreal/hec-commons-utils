@@ -20,13 +20,7 @@
  ******************************************************************************/
 package ca.hec.commons.providers;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-
-import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
+/*import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -39,7 +33,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
 import ca.hec.tenjin.api.model.template.Template;
-import ca.hec.tenjin.api.provider.ExternalDataProvider;
+import ca.hec.tenjin.api.provider.ExternalDataProvider;/
 import lombok.Setter;
 
 /**
@@ -47,9 +41,9 @@ import lombok.Setter;
  * @author <a href="mailto:mame-awa.diop@hec.ca">Mame Awa Diop</a>
  * @version $Id: $
  */
-public class PlagiarismPolicyProvider implements ExternalDataProvider {
+public class PlagiarismPolicyProvider /* implements ExternalDataProvider */ {
 
-    private static final String CONFIGURATION_FILE = "/group/tenjin/plagiarismProvider/plagiarismPolicy.properties";
+    /*private static final String CONFIGURATION_FILE = "/group/tenjin/plagiarismProvider/plagiarismPolicy.properties";
     
     private static String CACHE_NAME = "ca.hec.commons.providers.PlagiarismPolicyProvider";
     private Cache<String, ResourceBundle> cache;
@@ -115,7 +109,7 @@ public class PlagiarismPolicyProvider implements ExternalDataProvider {
     		}
     	}
 		return rb;
-	}
+	}*/
 
 }
 

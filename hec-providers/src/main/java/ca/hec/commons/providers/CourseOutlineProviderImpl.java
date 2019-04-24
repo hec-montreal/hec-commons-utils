@@ -1,71 +1,9 @@
 package ca.hec.commons.providers;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collections;
+/* import ca.hec.tenjin.api.provider.CourseOutlineProvider; */
 
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
-
-import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
-import ca.hec.tenjin.api.model.syllabus.Syllabus;
-import ca.hec.tenjin.api.model.syllabus.SyllabusEvaluationElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusExamElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusLectureElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusTutorialElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusCitationElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusCompositeElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusContactInfoElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusDocumentElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusHyperlinkElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusSakaiToolElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
-import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
-import lombok.Setter;
-import ca.hec.tenjin.api.provider.CourseOutlineProvider;
-import ca.hec.tenjin.api.TemplateService;
-import ca.hec.tenjin.api.exception.DeniedAccessException;
-
-import org.sakaiquebec.opensyllabus.common.api.OsylSiteService;
-import org.sakaiquebec.opensyllabus.common.model.COModeledServer;
-import org.sakaiquebec.opensyllabus.shared.model.COContentResourceProxy;
-import org.sakaiquebec.opensyllabus.shared.model.COElementAbstract;
-import org.sakaiquebec.opensyllabus.shared.model.COModelInterface;
-import org.sakaiquebec.opensyllabus.shared.model.COPropertiesType;
-import org.sakaiquebec.opensyllabus.shared.model.COStructureElement;
-import org.sakaiquebec.opensyllabus.shared.model.COUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdLengthException;
-import org.sakaiproject.exception.IdUniquenessException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
-
-public class CourseOutlineProviderImpl implements CourseOutlineProvider {
-	private static Logger log = LoggerFactory.getLogger(CourseOutlineProviderImpl.class);
+public class CourseOutlineProviderImpl /* implements CourseOutlineProvider */ {
+	/*private static Logger log = LoggerFactory.getLogger(CourseOutlineProviderImpl.class);
 	
 	@Setter
 	ContentHostingService contentService;
@@ -977,5 +915,5 @@ public class CourseOutlineProviderImpl implements CourseOutlineProvider {
 		citationService.save(destinationCitationList);
 		
 		return newSiteCollectionId + citationListName + "/" + newCitation.getId();
-	}	
+	}	*/
 }
