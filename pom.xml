@@ -38,6 +38,5 @@
 
 	<modules>
     	<module>hec-utils</module>
-    	<module>hec-providers</module>
 	</modules>
 </project>
