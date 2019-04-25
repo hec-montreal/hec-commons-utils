@@ -20,8 +20,8 @@
  ******************************************************************************/
 package ca.hec.commons.providers;
 
-import ca.hec.portal.api.OfficialCourseDescriptionDao;
-import ca.hec.portal.model.OfficialCourseDescription;
+import ca.hec.archive.api.OfficialCourseDescriptionService;
+import ca.hec.archive.model.OfficialCourseDescription;
 import ca.hec.tenjin.api.model.syllabus.AbstractSyllabusElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusRubricElement;
 import ca.hec.tenjin.api.model.syllabus.SyllabusTextElement;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
 
     @Setter
-    OfficialCourseDescriptionDao officialCourseDescriptionDao;
+    OfficialCourseDescriptionService descriptionService;
 
     @Override
     public AbstractSyllabusElement getAbstractSyllabusElement(String siteId, String locale) {
@@ -68,7 +68,7 @@ public class OfficialCourseDescriptionProvider implements ExternalDataProvider {
 
     private String getOfficialDescriptionString(String catalogNbr, String locale) {
         String officialDescription = "";
-        OfficialCourseDescription co = officialCourseDescriptionDao.getOfficialCourseDescription(catalogNbr);
+        OfficialCourseDescription co = descriptionService.getOfficialCourseDescription(catalogNbr);
         if (co == null)
             return null;
 
