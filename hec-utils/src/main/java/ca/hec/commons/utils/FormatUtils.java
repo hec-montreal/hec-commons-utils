@@ -40,6 +40,13 @@ public class FormatUtils {
 
 		// courseId formatting code taken from OfficialSitesJobImpl (must match)
 
+		// ZCII-3735: ne pas insérer de tirets si l'id de cours commence par une lettre 
+		// (nouveau format de numéro de répertoire)
+		courseId = courseId.replaceAll(" ", "");
+		if (courseId.matches("^[a-zA-Z]")) {
+			return courseId;
+		}
+
 		// if courseId does not contain a letter
 		if (!courseId.matches(".*[^0-9].*")) {
 			if (courseId.length() == 7) {
