@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>	
 	<artifactId>hec-utils</artifactId>
 	<groupId>ca.hec</groupId>
-	<version>19.0</version>
+	<version>19.1</version>
 	<name>hec-utils</name>
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>ca.hec</groupId>
 		<artifactId>hec-commons-utils</artifactId>
 		<relativePath>../pom.xml</relativePath>
-		<version>19.0</version>
+		<version>19.1</version>
 	</parent>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
