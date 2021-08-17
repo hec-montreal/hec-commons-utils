@@ -106,5 +106,26 @@ public class FormatUtils {
     	return sessionName;
     }
 
+    /**
+     * Returns the session id (ie 2191, 2203) corresponding
+     * to the PeopleSoft session enterprise id (from course management) for a given session name.
+     *
+     * @param  sessionName the session name
+     * @return      the session id in 2213
+     * @see         AcademicSession
+     */
+    public static String getSessionId(String sessionName) {
+		String sessionId = "2";
+		sessionId += sessionName.substring(3);
+
+		if (sessionName.charAt(0) == 'H')
+			sessionId += "1";
+		else if (sessionName.charAt(0) == 'E')
+			sessionId += "2";
+		else if (sessionName.charAt(0) == 'A')
+			sessionId += "3";
+
+		return sessionId;
+    }
 }
 
